@@ -1,0 +1,12 @@
+ZZ[2] :=-0.45*c        ; // hladiny z suradnic stavca
+ZZ[3] :=-0.30*c        ; // hladiny z suradnic stavca
+ZZ[4] :=-0.125*c       ; // hladiny z suradnic stavca
+ZZ[5] :=+0             ; // hladiny z suradnic stavca
+ZZ[6] :=+0.125*c       ; // hladiny z suradnic stavca
+ZZ[7] :=+0.30*c        ; // hladiny z suradnic stavca
+ZZ[8] :=+0.45*c        ; // hladiny z suradnic stavca
+ZZ[9] :=+0.500*c       ; // hladiny z suradnic stavca
+ZZ[10]:=-0.5*c-dd/4    ; // hladiny z suradnic platnicky
+ZZ[11]:=-0.5*c-dd/2    ; // hladiny z suradnic platnicky
+ZZ[12]:=-0.5*c-3*dd/4  ; // hladiny z suradnic platnicky
+!

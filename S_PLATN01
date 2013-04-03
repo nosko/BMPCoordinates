@@ -1,0 +1,138 @@
+IZ:=3600+CSS-POSUNC;      // Spodna podstava stavca cisla uzlov;
+ZI:=ZSUR-(c/2+dd);        // Suradnica v smere osi z;
+                         // Nacitanie uzlov stavca v jednej rovine z, parametre a,b,c,IZ,ZI;
+N(     1+IZ,  0,0,ZI);
+N(     2+IZ,  b/4,0,ZI);
+N(     3+IZ,  0,b/12,ZI);
+N(     5+IZ,  b/8,0,ZI);
+NINC(  4+IZ,  5+IZ,1+IZ,50);
+N(     6+IZ,  0,-NY(3+IZ),NZ(1+IZ));
+N(     8+IZ,  0,b/6,ZI);
+NINC( 10+IZ,  2+IZ,8+IZ,50);
+NINC(  9+IZ,  10+IZ,3+IZ,50);
+N(    11+IZ,  0,-NY(8+IZ),ZI);
+N(    12+IZ,  NX(9+IZ),-NY(9+IZ),ZI);
+N(    13+IZ,  NX(10+IZ),-NY(10+IZ),ZI);
+N(    14+IZ,  0,b/4,ZI);
+NINC( 15+IZ,  2+IZ,14+IZ,70);
+N(    17+IZ,  0,-NY(14+IZ),ZI);
+N(    18+IZ,  NX(15+IZ),-NY(15+IZ),ZI);
+N(    20+IZ,  0,3*b/8,ZI);
+NINC( 21+IZ,  2+IZ,20+IZ,70);
+N(    22+IZ,  0,-NY(20+IZ),ZI);
+NINC( 23+IZ,  2+IZ,22+IZ,70);
+N(    24+IZ,  0,b/2,ZI);
+N(    25+IZ,  b/12,NY(20+IZ),ZI);
+NINC( 26+IZ,  2+IZ,24+IZ,50);
+NINC( 16+IZ,  26+IZ,10+IZ,50);
+N(    19+IZ,  NX(16+IZ),-NY(16+IZ),ZI);
+N(    27+IZ,  0,-NY(24+IZ),ZI);
+N(    28+IZ,  NX(25+IZ),-NY(25+IZ),ZI);
+N(    29+IZ,  NX(26+IZ),-NY(26+IZ),ZI);
+N(    30+IZ,  b/8,5*b/8,ZI);
+NINC( 31+IZ,  2+IZ,30+IZ,80);
+N(    32+IZ,  b/6,NY(20+IZ),ZI);
+NINC( 33+IZ,  2+IZ,30+IZ,50);
+NINC( 34+IZ,  2+IZ,30+IZ,25);
+N(    35+IZ,  NX(30+IZ),-NY(30+IZ),ZI);
+N(    36+IZ,  NX(31+IZ),-NY(31+IZ),ZI);
+N(    37+IZ,  NX(32+IZ),-NY(32+IZ),ZI);
+N(    38+IZ,  NX(33+IZ),-NY(33+IZ),ZI);
+N(    39+IZ,  NX(34+IZ),-NY(34+IZ),ZI);
+N(    40+IZ,  b/4,3*b/4,ZI);
+NINC( 41+IZ,  2+IZ,40+IZ,85);
+NINC( 42+IZ,  2+IZ,40+IZ,70);
+N(    43+IZ,  b/4,NY(20+IZ),ZI);
+
+NINC( 45+IZ,  2+IZ,40+IZ,40);
+NINC( 46+IZ,  2+IZ,40+IZ,20);
+N(    47+IZ,  NX(40+IZ),-NY(40+IZ),ZI);
+N(    48+IZ,  NX(41+IZ),-NY(41+IZ),ZI);
+N(    49+IZ,  NX(42+IZ),-NY(42+IZ),ZI);
+N(    50+IZ,  NX(43+IZ),-NY(43+IZ),ZI);
+N(    52+IZ,  NX(45+IZ),-NY(45+IZ),ZI);
+N(    53+IZ,  NX(46+IZ),-NY(46+IZ),ZI);
+
+
+RR:=ABS(NY(40+IZ)-NY(2+IZ));      //polomer;
+XS:=NX(2+IZ)+RR*SIN(9);
+YS:=RR*COS(9);
+N(    54+IZ,XS,YS,ZI);
+N(    72+IZ,NX(54+IZ),-NY(54+IZ),ZI);
+*DO,II,55,71;
+    IP:=II-55;
+    ALF:=IP*9+18;
+    XS:=NX(2+IZ)+RR*SIN(ALF);
+    YS:=RR*COS(ALF);
+    N(    55+IP+IZ,XS,YS,ZI);                 // body na kruznici po obvode;
+    NINC( 90+IP+IZ,2+IZ,II+IZ,85);            // okraj cortikalnej casti;
+    NINC( 73+IP+IZ,90+IP+IZ,55+IP+IZ,50);     // polovica z cortikalnej casti;
+    NINC(107+IP+IZ,2+IZ,II+IZ,40);
+*ENDDO;
+
+RR:=ABS(NY(46+IZ)-NY(2+IZ));     // vnutorny okruh 1;
+*DO,II,124,132;
+    IP:=II-124;
+    ALF:=IP*18+18;
+    XS:=NX(2+IZ)+RR*SIN(ALF);
+    YS:=RR*COS(ALF);
+    N(124+IP+IZ,XS,YS,ZI);
+*ENDDO;
+
+NINC(133+IZ,2+IZ,54+IZ,90);
+NINC(134+IZ,2+IZ,54+IZ,80);
+NINC(135+IZ,2+IZ,54+IZ,40);
+N(   136+IZ,NX(133+IZ),-NY(133+IZ),ZI);
+N(   137+IZ,NX(134+IZ),-NY(134+IZ),ZI);
+N(   138+IZ,NX(135+IZ),-NY(135+IZ),ZI);
+N(   139+IZ,((b/4)+(3*b*TAN(27))/8),NY(20+IZ),ZI);
+N(   140+IZ,NX(139+IZ),-NY(139+IZ),ZI);
+N(   141+IZ,((b/4)+(3*b*TAN(36))/8),NY(20+IZ),ZI);
+N(   142+IZ,NX(141+IZ),-NY(141+IZ),ZI);
+N(   143+IZ,((b/4)+(3*b*TAN(18))/8),NY(20+IZ),ZI);
+N(   144+IZ,NX(143+IZ),-NY(143+IZ),ZI);
+N(   145+IZ,((b/4)+(3*b*TAN(9))/8),NY(20+IZ),ZI);
+N(   146+IZ,NX(145+IZ),-NY(145+IZ),ZI);
+NINC(147+IZ,42+IZ,43+IZ,50);
+NINC(148+IZ,92+IZ,141+IZ,50);
+N(   149+IZ,NX(148+IZ),-NY(148+IZ),ZI);
+N(   150+IZ,((b/4)+(3*b*TAN(45))/8),NY(20+IZ),ZI);
+N(   151+IZ,NX(150+IZ),-NY(150+IZ),ZI);
+
+RR:=ABS(NY(147+IZ)-NY(2+IZ));
+*DO,II,153,163;
+    IP:=II-153;
+    ALF:=IP*9+45;
+    XS:=NX(2+IZ)+RR*SIN(ALF);
+    YS:=RR*COS(ALF);
+    N(153+IP+IZ,XS,YS,ZI);
+*ENDDO;
+
+NINC(177+IZ,41+IZ,42+IZ,50);
+RR:=ABS(NY(177+IZ)-NY(2+IZ));
+*DO,II,166,176;
+    IP:=II-166;
+    ALF:=IP*9+45;
+    XS:=NX(2+IZ)+RR*SIN(ALF);
+    YS:=RR*COS(ALF);
+    N(166+IP+IZ,XS,YS,ZI);
+*ENDDO;
+
+
+
+NINC(179+IZ,134+IZ,145+IZ,50);
+N(   180+IZ,NX(179+IZ),-NY(179+IZ),ZI);
+NINC(181+IZ,90+IZ,143+IZ,50);
+N(   182+IZ,NX(181+IZ),-NY(181+IZ),ZI);
+NINC(183+IZ,91+IZ,139+IZ,50);
+N(   184+IZ,NX(183+IZ),-NY(183+IZ),ZI);
+
+nsel,s,loc,z, ZI-0.001,ZI+0.001;
+
+N(2679 ,Nx(3622)- (Nx(3650)-Nx(3622)),  Ny(3622), ZI);            //spojenie stavcovych vybezkov v klboch;
+N(2649 ,Nx(3620)- (Nx(3643)-Nx(3620)),  Ny(3620), ZI);            //spojenie stavcovych vybezkov;
+
+
+nplot;
+CM,UZLY1,node;
+CM,PODOP1,node;

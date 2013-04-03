@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2013/02/07 13:30:33.245.pas,C:\Users\Michal\Documents\RAD Studio\Projects\Unit1.pas=D:\Programing\Programy Delphi\BmpCoordinates\main.pas</Transaction>
+    <Transaction>2013/02/07 13:30:33.245.dfm,C:\Users\Michal\Documents\RAD Studio\Projects\Unit1.dfm=D:\Programing\Programy Delphi\BmpCoordinates\main.dfm</Transaction>
+    <Transaction>2013/02/07 13:30:40.832.dproj,C:\Users\Michal\Documents\RAD Studio\Projects\Project1.dproj=D:\Programing\Programy Delphi\BmpCoordinates\BMPCoordinates.dproj</Transaction>
+    <Transaction>2013/02/07 13:53:00.919.pas,D:\Programing\Programy Delphi\BmpCoordinates\Unit1.pas=D:\Programing\Programy Delphi\BmpCoordinates\ruler.pas</Transaction>
+    <Transaction>2013/02/07 13:53:00.919.dfm,D:\Programing\Programy Delphi\BmpCoordinates\Unit1.dfm=D:\Programing\Programy Delphi\BmpCoordinates\ruler.dfm</Transaction>
+    <Transaction>2013/03/22 09:17:17.024.pas,C:\Users\Milan Sokol\USR\Vyuka\Diplomanti\Veliskova Petra\Delphi geometria\BmpCoordinates01\Unit1.pas=C:\Users\Milan Sokol\USR\Vyuka\Diplomanti\Veliskova Petra\Delphi geometria\BmpCoordinates01\Stavce.pas</Transaction>
+    <Transaction>2013/04/03 08:38:34.068.pas,C:\Documents and Settings\noskovic\Desktop\Petra\BmpCoordinates01\Unit1.pas=C:\Documents and Settings\noskovic\Desktop\Petra\BmpCoordinates01\Matrix.pas</Transaction>
+    <Transaction>2013/04/03 08:38:34.068.dfm,C:\Documents and Settings\noskovic\Desktop\Petra\BmpCoordinates01\Unit1.dfm=C:\Documents and Settings\noskovic\Desktop\Petra\BmpCoordinates01\Matrix.dfm</Transaction>
+  </Transactions>
+</BorlandProject>

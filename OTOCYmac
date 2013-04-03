@@ -1,0 +1,39 @@
+!  arg1    RotX      zatial navyse
+!  arg2    RotY      
+!  arg3    RotZ      zatial navyse
+!  arg4    cislo uzla zaciatocne
+!  arg5    cislo uzla koncove
+!
+!
+!
+POMDIM=POMDIM+1
+*if,POMDIM,LE,1,then
+   *dim,pod,,9999
+*ENDIF
+
+nsel,s,node,,arg4,arg5
+                                                     
+*get,zac,node,,num,min                  ! zac = cislo prveho uzla
+*get,kon,node,,num,max                  ! kon = cislo posledneho uzla
+*get,pocet,node,,count                  ! pocet = pocet uzlov v urovni ZD2
+cislo=zac
+citac=0
+*if,pocet,le,0,then     ! zapis cisiel vyselektovanych uzlov do vektora pod() 
+*else
+ *do,I,1,pocet
+   citac=citac+1
+   pod(citac)=cislo
+   *get,cislo,node,cislo,nxth
+ *enddo
+*endif
+
+
+
+
+! definovanie suradnic - ROTACIA
+  *DO,II,1,POCET
+    NU=POD(II)                   ! Cislo noveho uzla
+    NRY,NU,arg2
+  *ENDDO
+!
+!

@@ -1,0 +1,159 @@
+Procedure S_stavn03;
+var   IZ  : longint;
+      ZI  : single;
+begin
+// !!!!!!!!!!        UZLY STAVCA
+IZ:=1200+CSS;           //  ! Spodna podstava stavca cisla uzlov
+ZI:=ZSUR-c/2;           //  ! Suradnica v smere osi z
+                        //  ! Nacitanie uzlov stavca v jednej rovine z, parametre a,b,c,IZ,ZI
+N(     1+IZ,  0,0,ZI);
+N(     2+IZ,  b/4,0,ZI);
+N(     3+IZ,  0,b/12,ZI);
+N(     5+IZ,  b/8,0,ZI);
+N(     4+IZ,  5+IZ,1+IZ,50);
+N(     6+IZ,  0,-Ny[3+IZ],Nz[1+IZ]);
+N(     8+IZ,  0,b/6,ZI);
+N(    10+IZ,  2+IZ,8+IZ,50);
+N(     9+IZ,  10+IZ,3+IZ,50);
+N(    11+IZ,  0,-Ny[8+IZ],ZI);
+N(    12+IZ,  Nx[9+IZ],-Ny[9+IZ],ZI);
+N(    13+IZ,  Nx[10+IZ],-Ny[10+IZ],ZI);
+N(    14+IZ,  0,b/4,ZI);
+N(    15+IZ,  2+IZ,14+IZ,70);
+N(    17+IZ,  0,-Ny[14+IZ],ZI);
+N(    18+IZ,  Nx[15+IZ],-Ny[15+IZ],ZI);
+N(    20+IZ,  0,3*b/8,ZI);
+N(    21+IZ,  2+IZ,20+IZ,70);
+N(    22+IZ,  0,-Ny[20+IZ],ZI);
+N(    23+IZ,  2+IZ,22+IZ,70);
+N(    24+IZ,  0,b/2,ZI);
+N(    25+IZ,  b/12,Ny[20+IZ],ZI);
+N(    26+IZ,  2+IZ,24+IZ,50);
+N(    16+IZ,  26+IZ,10+IZ,50);
+N(    19+IZ,  Nx[16+IZ],-Ny[16+IZ],ZI);
+N(    27+IZ,  0,-Ny[24+IZ],ZI);
+N(    28+IZ,  Nx[25+IZ],-Ny[25+IZ],ZI);
+N(    29+IZ,  Nx[26+IZ],-Ny[26+IZ],ZI);
+N(    30+IZ,  b/8,5*b/8,ZI);
+N(    31+IZ,  2+IZ,30+IZ,80);
+N(    32+IZ,  b/6,Ny[20+IZ],ZI);
+N(    33+IZ,  2+IZ,30+IZ,50);
+N(    34+IZ,  2+IZ,30+IZ,25);
+N(    35+IZ,  Nx[30+IZ],-Ny[30+IZ],ZI);
+N(    36+IZ,  Nx[31+IZ],-Ny[31+IZ],ZI);
+N(    37+IZ,  Nx[32+IZ],-Ny[32+IZ],ZI);
+N(    38+IZ,  Nx[33+IZ],-Ny[33+IZ],ZI);
+N(    39+IZ,  Nx[34+IZ],-Ny[34+IZ],ZI);
+
+N(    40+IZ,  b/4,3*b/4,ZI);
+N(    41+IZ,  2+IZ,40+IZ,85);
+N(    42+IZ,  2+IZ,40+IZ,70);
+N(    43+IZ,  b/4,Ny[20+IZ],ZI);
+!
+N(    45+IZ,  2+IZ,40+IZ,40);
+N(    46+IZ,  2+IZ,40+IZ,20);
+N(    47+IZ,  Nx[40+IZ],-Ny[40+IZ],ZI);
+N(    48+IZ,  Nx[41+IZ],-Ny[41+IZ],ZI);
+N(    49+IZ,  Nx[42+IZ],-Ny[42+IZ],ZI);
+N(    50+IZ,  Nx[43+IZ],-Ny[43+IZ],ZI);
+N(    52+IZ,  Nx[45+IZ],-Ny[45+IZ],ZI);
+N(    53+IZ,  Nx[46+IZ],-Ny[46+IZ],ZI);
+
+
+RR:=(ABS(Ny[40+IZ]-Ny[2+IZ]));
+XS:=(Nx[2+IZ]+RR*SIN(9));
+YS:=(RR*COS(9));
+N(    54+IZ,XS,YS,ZI);
+N(    72+IZ,Nx[54+IZ],-Ny[54+IZ],ZI);
+For II:=55 to 71 do
+    begin
+    IP:=(II-55);
+    ALF:=(IP*9+18);
+    XS:=(Nx[2+IZ]+RR*SIN(ALF));
+    YS:=(RR*COS(ALF));
+    N(    55+IP+IZ,XS,YS,ZI                 ! body na kruznici po obvode);
+    N( 90+IP+IZ,2+IZ,II+IZ,85            ! okraj cortikalnej casti);
+    N( 73+IP+IZ,90+IP+IZ,55+IP+IZ,50     ! polovica z cortikalnej casti);
+    N(107+IP+IZ,2+IZ,II+IZ,40);
+    end;
+
+RR:=(ABS(Ny[46+IZ]-Ny[2+IZ])     ! vnutorny okruh 1);
+For II:=124 to 132 do
+    begin
+    IP:=(II-124);
+    ALF:=(IP*18+18);
+    XS:=(Nx[2+IZ]+RR*SIN(ALF));
+    YS:=(RR*COS(ALF));
+    N(124+IP+IZ,XS,YS,ZI);
+    end;
+
+N(   133+IZ,2+IZ,54+IZ,90);
+N(   134+IZ,2+IZ,54+IZ,80);
+N(   135+IZ,2+IZ,54+IZ,40);
+N(   136+IZ,Nx[133+IZ],-Ny[133+IZ],ZI);
+N(   137+IZ,Nx[134+IZ],-Ny[134+IZ],ZI);
+N(   138+IZ,Nx[135+IZ],-Ny[135+IZ],ZI);
+N(   139+IZ,((b/4)+(3*b*TAN(27))/8),Ny[20+IZ],ZI);
+N(   140+IZ,Nx[139+IZ],-Ny[139+IZ],ZI);
+N(   141+IZ,((b/4)+(3*b*TAN(36))/8),Ny[20+IZ],ZI);
+N(   142+IZ,Nx[141+IZ],-Ny[141+IZ],ZI);
+N(   143+IZ,((b/4)+(3*b*TAN(18))/8),Ny[20+IZ],ZI);
+N(   144+IZ,Nx[143+IZ],-Ny[143+IZ],ZI);
+N(   145+IZ,((b/4)+(3*b*TAN(9))/8),Ny[20+IZ],ZI);
+N(   146+IZ,Nx[145+IZ],-Ny[145+IZ],ZI);
+N(   147+IZ,42+IZ,43+IZ,50);
+N(   148+IZ,92+IZ,141+IZ,50);
+N(   149+IZ,Nx[148+IZ],-Ny[148+IZ],ZI);
+N(   150+IZ,((b/4)+(3*b*TAN(45))/8),Ny[20+IZ],ZI);
+N(   151+IZ,Nx[150+IZ],-Ny[150+IZ],ZI);
+
+RR:=(ABS(Ny[147+IZ]-Ny[2+IZ]));
+For II:=153 to 163 do
+    begin
+    IP:=(II-153);
+    ALF:=(IP*9+45);
+    XS:=(Nx[2+IZ]+RR*SIN(ALF));
+    YS:=(RR*COS(ALF));
+    N(153+IP+IZ,XS,YS,ZI);
+    end;
+
+N(177+IZ,41+IZ,42+IZ,50);
+RR:=(ABS(Ny[177+IZ]-Ny[2+IZ]));
+For II:=166 to 176 do
+    begin
+    IP:=(II-166);
+    ALF:=IP*9+45;
+    XS:=Nx[2+IZ]+RR*SIN(ALF);
+    YS:=RR*COS(ALF);
+    N(166+IP+IZ,XS,YS,ZI);
+    end;
+
+N(179+IZ,134+IZ,145+IZ,50);
+N(   180+IZ,Nx[179+IZ],-Ny[179+IZ],ZI);
+N(181+IZ,90+IZ,143+IZ,50);
+N(   182+IZ,Nx[181+IZ],-Ny[181+IZ],ZI);
+N(183+IZ,91+IZ,139+IZ,50);
+N(   184+IZ,Nx[183+IZ],-Ny[183+IZ],ZI);
+
+for jj:=2 to 9 do                                       //! generovanie uzlov vyssich rezov tela stavca a ich zuzenie
+  begin
+  POSCIS=(JJ-1)*300
+  ngeN(2,POSCIS ,IZ+1,IZ+184,1,0,0,(ZSUR+ZZ(JJ)-ZI));   //  selektovanie a zuzenie uzlov ku stredu stavca vo vyssich rezoch
+  PERZUZ=2/(c*c)*(195-2*PERC)*ZZ(JJ)*ZZ(JJ)-5/c*ZZ(JJ)+PERC !
+  STAVSEL1(PERZUZ,IZ+POSCIS);                           // 1. parameter je percento zuzenia,. 2.parameter zakl. cislo
+  end;                                                  //! koniec generovania uzlov vyssich rezov
+
+end;    //  S_stavn03
+
+Procedure ngeN(KolkoKrat,PosunCis ,iOD,iDO,Krok, delX, delY, delZ);
+var ii :longint;
+begin
+  for kk:=1 to (Kolkokrat-1) do
+   begin
+   for ii:=iOD to iDO do
+     begin
+     N(ii+kk*PosunCis,NX[ii]+kk*delX, NY[ii]+kk*delY, NZ[ii]+kk*delZ);
+     end; // ii
+   end;   // kk
+end;    // ngeN
+
