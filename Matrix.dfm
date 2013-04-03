@@ -17,8 +17,8 @@ object Form1: TForm1
   object Label1: TLabel
     Left = 16
     Top = 165
-    Width = 31
-    Height = 21
+    Width = 18
+    Height = 13
     Caption = 'aaa'
   end
   object Label2: TLabel
@@ -107,7 +107,6 @@ object Form1: TForm1
     Width = 228
     Height = 21
     TabOrder = 2
-    Text = 'Edit1'
   end
   object cccField: TEdit
     Left = 53
@@ -115,7 +114,6 @@ object Form1: TForm1
     Width = 228
     Height = 21
     TabOrder = 3
-    Text = 'Edit1'
   end
   object dddField: TEdit
     Left = 53
@@ -123,7 +121,6 @@ object Form1: TForm1
     Width = 228
     Height = 21
     TabOrder = 4
-    Text = 'Edit1'
   end
   object xxxField: TEdit
     Left = 53
@@ -131,7 +128,6 @@ object Form1: TForm1
     Width = 228
     Height = 21
     TabOrder = 5
-    Text = 'Edit1'
   end
   object yyyField: TEdit
     Left = 53
@@ -139,7 +135,6 @@ object Form1: TForm1
     Width = 228
     Height = 21
     TabOrder = 6
-    Text = 'Edit1'
   end
   object zzzField: TEdit
     Left = 53
@@ -147,7 +142,6 @@ object Form1: TForm1
     Width = 228
     Height = 21
     TabOrder = 7
-    Text = 'Edit1'
   end
   object alxField: TEdit
     Left = 53
@@ -155,7 +149,6 @@ object Form1: TForm1
     Width = 228
     Height = 21
     TabOrder = 8
-    Text = 'Edit1'
   end
   object alyField: TEdit
     Left = 53
@@ -163,7 +156,6 @@ object Form1: TForm1
     Width = 228
     Height = 21
     TabOrder = 9
-    Text = 'Edit1'
   end
   object alzField: TEdit
     Left = 53
@@ -171,7 +163,6 @@ object Form1: TForm1
     Width = 228
     Height = 21
     TabOrder = 10
-    Text = 'Edit1'
   end
   object Button1: TButton
     Left = 16
