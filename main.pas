@@ -11,6 +11,7 @@ const Setts : String = 'config.ini';
 type
   TfMain = class(TForm)
     //Img: TImage32;
+
     bLoad: TButton;
     bClose: TButton;
     Open: TOpenDialog;
