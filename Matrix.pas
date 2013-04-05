@@ -30,8 +30,33 @@ type
     Label8: TLabel;
     Label9: TLabel;
     Label10: TLabel;
+    Label11: TLabel;
+    Label12: TLabel;
+    Label13: TLabel;
+    Label14: TLabel;
+    Label15: TLabel;
+    Label16: TLabel;
+    Label17: TLabel;
+    Label18: TLabel;
+    Label19: TLabel;
+    Label20: TLabel;
+    Label21: TLabel;
+    Label22: TLabel;
+    Label23: TLabel;
+    Label24: TLabel;
+    Label25: TLabel;
+    Label26: TLabel;
+    Label27: TLabel;
+    Label28: TLabel;
+    Label29: TLabel;
+    Label30: TLabel;
+    Label31: TLabel;
+    Label32: TLabel;
+    Label33: TLabel;
+    Label34: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
+    procedure ZapisDatabazu(index:integer);
   private
     { Private declarations }
   public
@@ -42,19 +67,15 @@ type
 
 var
   Form1: TForm1;
-  AAA,BBB,CCC,DDD,XXX,YYY,ZZZ,ALX,ALY,ALZ: array[1..23] of single;
-
-
+  AAA,BBB,CCC,DDD,XXX,YYY,ZZZ,ALX,ALY,ALZ: array[1..24] of single;
+  AktualnaPolozka                                 : Integer;
+  KreslitOdStavca,KreslitPoStavec                 : Integer;
 implementation
 
 {$R *.dfm}
 
-procedure TForm1.Button1Click(Sender: TObject);
-var index:  Integer;
+procedure TForm1.ZapisDatabazu(index:integer);
 begin
-    // Prvy prvok v listboxe ma index 0, pole su indexovane od 1
-    index := ListBox1.ItemIndex+1;
-
     AAA[index]:= StrToFloat(aaaField.Text);   // stavec L5
     BBB[index]:= StrToFloat(bbbField.Text);
     CCC[index]:= StrToFloat(cccField.Text);
@@ -67,18 +88,28 @@ begin
     ALZ[index]:= StrToFloat(alzField.Text);
 end;
 
+procedure TForm1.Button1Click(Sender: TObject);
+var index:  Integer;
+begin
+    // Prvy prvok v listboxe ma index 0, pole su indexovane od 1
+    index := 25-(ListBox1.ItemIndex+1);
+    Form1.ZapisDatabazu(index);
+end;
+
+
+
 procedure TForm1.initTextFields;
 begin
-    aaaField.Text:= FloatToStr(AAA[1]);
-    bbbField.Text:= FloatToStr(BBB[1]);
-    cccField.Text:= FloatToStr(CCC[1]);
-    dddField.Text:= FloatToStr(DDD[1]);
-    xxxField.Text:= FloatToStr(XXX[1]);
-    yyyField.Text:= FloatToStr(YYY[1]);
-    zzzField.Text:= FloatToStr(ZZZ[1]);
-    alxField.Text:= FloatToStr(ALX[1]);
-    alyField.Text:= FloatToStr(ALY[1]);
-    alzField.Text:= FloatToStr(ALZ[1]);
+    aaaField.Text:= FloatToStrF(AAA[1],ffFixed,8,4);
+    bbbField.Text:= FloatToStrF(BBB[1],ffFixed,8,4);
+    cccField.Text:= FloatToStrF(CCC[1],ffFixed,8,4);
+    dddField.Text:= FloatToStrF(DDD[1],ffFixed,8,4);
+    xxxField.Text:= FloatToStrF(XXX[1],ffFixed,8,4);
+    yyyField.Text:= FloatToStrF(YYY[1],ffFixed,8,4);
+    zzzField.Text:= FloatToStrF(ZZZ[1],ffFixed,8,4);
+    alxField.Text:= FloatToStrF(ALX[1],ffFixed,8,4);
+    alyField.Text:= FloatToStrF(ALY[1],ffFixed,8,4);
+    alzField.Text:= FloatToStrF(ALZ[1],ffFixed,8,4);
 end;
 
 
@@ -86,26 +117,27 @@ procedure TForm1.ListBox1Click(Sender: TObject);
 var index:  Integer;
 begin
     // Prvy prvok v listboxe ma index 0, pole su indexovane od 1
-    index := ListBox1.ItemIndex+1;
-
-    aaaField.Text:= FloatToStr(AAA[index]);
-    bbbField.Text:= FloatToStr(BBB[index]);
-    cccField.Text:= FloatToStr(CCC[index]);
-    dddField.Text:= FloatToStr(DDD[index]);
-    xxxField.Text:= FloatToStr(XXX[index]);
-    yyyField.Text:= FloatToStr(YYY[index]);
-    zzzField.Text:= FloatToStr(ZZZ[index]);
-    alxField.Text:= FloatToStr(ALX[index]);
-    alyField.Text:= FloatToStr(ALY[index]);
-    alzField.Text:= FloatToStr(ALZ[index]);
+    index := 25-(ListBox1.ItemIndex+1);
+    aaaField.Text:= FloatToStrF(AAA[index],ffFixed,8,4);
+    bbbField.Text:= FloatToStrF(BBB[index],ffFixed,8,4);
+    cccField.Text:= FloatToStrF(CCC[index],ffFixed,8,4);
+    dddField.Text:= FloatToStrF(DDD[index],ffFixed,8,4);
+    xxxField.Text:= FloatToStrF(XXX[index],ffFixed,8,4);
+    yyyField.Text:= FloatToStrF(YYY[index],ffFixed,8,4);
+    zzzField.Text:= FloatToStrF(ZZZ[index],ffFixed,8,4);
+    alxField.Text:= FloatToStrF(ALX[index],ffFixed,8,4);
+    alyField.Text:= FloatToStrF(ALY[index],ffFixed,8,4);
+    alzField.Text:= FloatToStrF(ALZ[index],ffFixed,8,4);
+    AktualnaPolozka:= ListBox1.ItemIndex;
+    KreslitPoStavec:=index;
 end;
 
 procedure TForm1.loadData;
 var i: Integer;
 begin
   // TODO: load&save to/from file
-  AAA[1]:=0.023;   // stavec L5
-  BBB[1]:=0.015 ;
+    AAA[1]:=0.023;   // stavec L5
+    BBB[1]:=0.015 ;
     CCC[1]:=0.0105;
     DDD[1]:=0.005 ;
     XXX[1]:=0     ;
@@ -292,10 +324,9 @@ begin
     ALZ[17]:=0       ;
 
     // Vytvor selectbox a nastav ho na prvy element
-    For i:=1 to 23 do
-      ListBox1.Items.Add(IntToStr(i));
+    For i:=1 to 24 do  ListBox1.Items.Add(IntToStr(25-i));
 
-    ListBox1.ItemIndex := 0;
+    ListBox1.ItemIndex:=AktualnaPolozka;
 end;
 
 end.

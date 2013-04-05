@@ -24,6 +24,10 @@ type
     Button2: TButton;
     Button3: TButton;
     Img: TImage32;
+    Button4: TButton;
+    Vstup_a_: TButton;
+    Vstup_b_: TButton;
+    Vstup_c_: TButton;
     procedure bCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure bLoadClick(Sender: TObject);
@@ -32,21 +36,29 @@ type
     procedure Button1Click(Sender: TObject);
     procedure fitPxChange(Sender: TObject);
     procedure fitRealChange(Sender: TObject);
-    procedure ImgMouseUp(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     procedure cbUnitChange(Sender: TObject);
     procedure SaveConfig;
     procedure LoadConfig;
+
     procedure ImgMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     procedure ImgMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer;
       Layer: TCustomLayer);
+    procedure ImgMouseUp(Sender: TObject; Button: TMouseButton;
+      Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
+    Procedure VratitVstupy(Stavec:integer; NazovVstupu:string; P1,P2:TPoint);
+
+
     procedure KresliStavce(Sender: TObject);
     Procedure nplotXZ(odStavca,PoStavec:longint; Mierka:single; Farba:longint);  //uzly stavca
     Procedure nplotYZ(odStavca,PoStavec:longint; Mierka:single; Farba:longint);
     Procedure lplotXZ(odStavca,PoStavec:longint; Mierka:single; Farba:longint);  // obrysy stavca
     Procedure lplotYZ(odStavca,PoStavec:longint; Mierka:single; Farba:longint);
     procedure IMGCSlateral(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure Vstup_a_Click(Sender: TObject);
+    procedure Vstup_b_Click(Sender: TObject);
+    procedure Vstup_c_Click(Sender: TObject);
 
   private
     { Private declarations }
@@ -64,6 +76,11 @@ var
   AppStatus                 : String;
   StlacenyButtonLeft        : boolean;
   Xorigin,Yorigin,Zorigin   : single;
+  NazovVstupu               : string;
+  HodnotaVstupu             : extended;
+  VratitVstup               : boolean;
+
+
 
 implementation
 
@@ -92,7 +109,13 @@ end;
 procedure TfMain.Button1Click(Sender: TObject);
 begin
   //fRuler.Show;
-  fRuler.ShowModal;
+  fRuler.Show{Modal};
+end;
+
+procedure TfMain.Button4Click(Sender: TObject);
+begin
+ //Form1.Show;
+  Form1.Show{Modal};
 end;
 
 procedure TfMain.KresliStavce(Sender: TObject);
@@ -100,14 +123,14 @@ var MierkaXZ,MierkaYZ      :single;
     Farba                  :longint;
 begin
 
-  UzlyStavca(3);
-  MierkaXZ := 1000*floatPx / floatReal;
+  UzlyStavca(17);
+  MierkaXZ :=1 {1000*floatPx / floatReal};
   Farba:=clRed;
-  lplotXZ(1,3,MierkaXZ, Farba);
+  fMain.lplotXZ(KreslitOdStavca,KreslitPoStavec,MierkaXZ, Farba);
 
   Farba:=clBlue;
-  MierkaYZ := 1000*floatPx / floatReal;
-  lplotYZ(1,3,MierkaYZ,Farba);
+  MierkaYZ := 1 {1000*floatPx / floatReal};
+  fMain.lplotYZ(KreslitOdStavca,KreslitPoStavec,MierkaYZ,Farba);
 end;
 
 procedure TfMain.cbUnitChange(Sender: TObject);
@@ -138,6 +161,9 @@ AppStatus := 'Init';
 StlacenyButtonLeft:=false;
 Bmp := TBitmap.Create;
 Open.InitialDir := ExtractFilePath(Application.ExeName);
+AktualnaPolozka:= 23;  // Aktualna polozka v okne Stavce data 23 znamena cislovanie od hora zacinajuce od nuly
+KreslitOdStavca:=1;
+KreslitPoStavec:=1;
 
 P1.X := 0;
 P1.Y := 0;
@@ -162,12 +188,12 @@ end;
 
 procedure TfMain.FormShow(Sender: TObject);
 begin
-fRuler.Left := fMain.Width - fRuler.Width - 20;
-fRuler.Top := fMain.Height - fRuler.Height - 20;
+fRuler.Left := fMain.Width - Form1.Width - 100;
+fRuler.Top := Form1.Height {fMain.Height - fRuler.Height - 20-150};
 fRuler.Show;
 
-Form1.Left := fMain.Width - Form1.Width - 20;
-Form1.Top := fMain.Height - Form1.Height - fRuler.Height - 30;
+Form1.Left := fMain.Width - Form1.Width - 50;
+Form1.Top := {fMain.Height - Form1.Height - fRuler.Height - 5}0;
 Form1.Show;
 
 Form1.loadData;
@@ -178,7 +204,7 @@ end;
 
 procedure TfMain.Resize;
 begin
- Img.Top := 40;
+ Img.Top := 100;
  Img.Left := 0;
  Img.ClientHeight := Bmp.Height;
  Img.ClientWidth := Bmp.Width;
@@ -192,6 +218,22 @@ f.WriteString('App','Units', cbUnit.Text);
 f.WriteString('App','fitPx', fitPx.Text);
 f.WriteString('App','fitReal', fitReal.Text);
 f.Free;
+end;
+
+procedure TfMain.Vstup_a_Click(Sender: TObject);
+begin
+  NazovVstupu:='a';
+end;
+
+procedure TfMain.Vstup_b_Click(Sender: TObject);
+begin
+  NazovVstupu:='b';
+
+end;
+
+procedure TfMain.Vstup_c_Click(Sender: TObject);
+begin
+  NazovVstupu:='c';
 end;
 
 procedure TfMain.LoadConfig;
@@ -238,7 +280,12 @@ begin
     end;
   StlacenyButtonLeft:=true;
   ChangeRuler;
-  end;
+  end;   // mouse button LEFT
+
+ if Button= mbRight then
+  begin
+   KresliStavce(Sender);
+  end;   // mouse button RIGHT
 end;
 
 procedure TfMain.ImgMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -257,6 +304,8 @@ if StlacenyButtonLeft then
   end;
   ChangeRuler;
 end;
+
+
 
 procedure TfMain.ImgMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
@@ -277,7 +326,77 @@ begin
      end;
   ChangeRuler;
   end;
-end;
+
+  if Button= mbRight then  // otazka ci zapisat hodnoty do databazy
+  begin
+  if NazovVstupu<>'' then   // ak je zadany nazov veliciny ktora sa zadava
+    begin
+    HodnotaVstupu:=sqrt(sqr(P2.X-P1.X)+sqr(P2.Y-P1.Y));
+    if  Dialogs.MessageDlg('Write value    '+NazovVstupu+'= '+
+                           FloatToStrF(HodnotaVstupu,ffFixed,8,4)+
+                           '    in Spine geometry database, vertebra '+
+                                IntToStr(KreslitPoStavec)+ '? ',
+       mtConfirmation, [mbYes, mbNo], 0, mbYes) = mrYes then
+       begin
+       VratitVstupy(KreslitPoStavec,NazovVstupu,P1,P2);
+       end
+
+    end;
+  end;
+end; //Tfmain.ImgMouseUP
+
+
+Procedure TfMain.VratitVstupy(Stavec:integer; NazovVstupu:string; P1,P2:TPoint);
+var  dX,dY,meanX,meanY,dlzka,uhol  :extended;
+begin
+    dX:=P2.X-P1.X;
+    dY:=-(P2.Y-P1.Y);               //dY:=P2.Y-P1.Y;
+    meanX:=(P2.X+P1.X)/2;
+    meanY:=(P2.Y+P1.Y)/2;
+    dlzka:=sqrt(sqr(dX)+sqr(dY));
+   if dx=0 then
+           begin
+             if dY>=0 then uhol:=pi/2
+                      else uhol:=3*pi/2;
+           end
+    else
+           begin
+           uhol:=ArcTan(abs(dY)/abs(dX));
+             if dX>=0 then
+                  begin
+                   if dY>=0 then uhol:=uhol
+                            else uhol:=2*pi-uhol;
+                  end
+             else begin
+                   if dY>=0 then uhol:=pi-uhol
+                            else uhol:=pi+uhol;
+                  end;
+           end;
+    uhol:=180/pi*uhol;
+
+    case NazovVstupu[1] of
+    'a':begin
+        Form1.aaaField.Text:=FloatToStrF(dlzka,ffFixed,8,4);
+        Form1.alxField.Text:=FloatToStrF(uhol,ffFixed,8,4);
+        Form1.yyyField.Text:=FloatToStrF(MeanX,ffFixed,8,4);
+        Form1.zzzField.Text:=FloatToStrF(fMain.Img.Height-MeanY,ffFixed,8,4);
+        end;
+    'b':begin
+        Form1.bbbField.Text:=FloatToStrF(dlzka,ffFixed,8,4);
+        end;
+    'c':begin
+        Form1.cccField.Text:=FloatToStrF(dlzka,ffFixed,8,4);
+        Form1.alyField.Text:=FloatToStrF(uhol,ffFixed,8,4);
+        Form1.xxxField.Text:=FloatToStrF(MeanX,ffFixed,8,4);
+        //Form1.zzzField.Text:=FloatToStrF(fMain.Img.Height-MeanY,ffFixed,8,4);
+        end;
+    end;
+    Form1.ZapisDatabazu(KreslitPoStavec);
+end;  //TfMain.VratitVstupy
+
+
+
+
 
 Procedure BodXZ(Uzol:longint; Mierka:single; Farba, Hrubka:longint);
 var
@@ -285,8 +404,9 @@ var
 begin
  fMain.Img.Canvas.Pen.Color:=Farba;
  fMain.Img.Canvas.Pen.Width:=Hrubka;
- x:=400- Round(NX[Uzol]*Mierka);
- y:=400- Round(NZ[Uzol]*Mierka);
+ x:=Round(NX[Uzol]*Mierka);
+ y:=Round(NZ[Uzol]*Mierka);
+
  fMain.Img.Canvas.MoveTo(x,y);
  fMain.Img.Canvas.LineTo(x,y);
  end;
@@ -297,8 +417,8 @@ var
 begin
  fMain.Img.Canvas.Pen.Color:=Farba;
  fMain.Img.Canvas.Pen.Width:=Hrubka;
- x:=400- Round(NX[Uzol]*Mierka);
- y:=400- Round(NZ[Uzol]*Mierka);
+ x:=Round(NX[Uzol]*Mierka);
+ y:=Round(NZ[Uzol]*Mierka);
  fMain.Img.Canvas.LineTo(x,y);
  end;
 
@@ -310,8 +430,8 @@ var
 begin
  fMain.Img.Canvas.Pen.Color:=Farba;
  fMain.Img.Canvas.Pen.Width:=Hrubka;
- x:=800- Round(NY[Uzol]*Mierka);
- y:=400- Round(NZ[Uzol]*Mierka);
+ x:=Round(NY[Uzol]*Mierka);
+ y:=Round(NZ[Uzol]*Mierka);
  fMain.Img.Canvas.MoveTo(x,y);
  fMain.Img.Canvas.LineTo(x,y);
  end;
@@ -322,8 +442,8 @@ var
 begin
  fMain.Img.Canvas.Pen.Color:=Farba;
  fMain.Img.Canvas.Pen.Width:=Hrubka;
- x:=800- Round(NY[Uzol]*Mierka);
- y:=400- Round(NZ[Uzol]*Mierka);
+ x:=Round(NY[Uzol]*Mierka);
+ y:=Round(NZ[Uzol]*Mierka);
  fMain.Img.Canvas.LineTo(x,y);
  end;
 
@@ -454,23 +574,21 @@ end; //KresliZvisleLinieStavcaProjekciaYZ
 
 
 Procedure TfMain.nplotXZ(odStavca,PoStavec:longint; Mierka:single; Farba:longint);
-var   i,CS, Hrubka  :longint;
+var   i, Hrubka  :longint;
 begin
    Hrubka:=1;
    for i:= odStavca to PoStavec do
      begin
-     CS:=i*PosunC;
      KresliBodyStavcaProjekciaXZ(i,Mierka, Farba, Hrubka);
      end;
 end;  // nplotXZ
 
 Procedure TfMain.nplotYZ(odStavca,PoStavec:longint; Mierka:single; Farba:longint);
-var   i,CS, Hrubka  :longint;
+var   i, Hrubka  :longint;
 begin
    Hrubka:=1;
    for i:= odStavca to PoStavec do
      begin
-     CS:=i*PosunC;
      KresliBodyStavcaProjekciaYZ(i,Mierka, Farba, Hrubka);
      end;
 end;  // nplotYZ
