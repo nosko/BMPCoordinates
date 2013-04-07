@@ -91,6 +91,7 @@ var
   AppStatus                 : String;
   StlacenyButtonLeft        : boolean;
   Xorigin,Yorigin,Zorigin   : single;
+  NazovVstupu               : string;
   HodnotaVstupu             : extended;
   VratitVstup               : boolean;
   FarbaDefinovanehoRozmeru  : integer;
@@ -99,7 +100,7 @@ var
 
 implementation
 
-uses ruler,stavce,Matrix;
+uses ruler,stavce, Matrix;
 
 {$R *.dfm}
 
@@ -719,9 +720,7 @@ begin
      begin
      KresliBodyStavcaProjekciaYZ(i,Mierka, Farba, Hrubka);
      end;
-end;
-
-// nplotYZ
+end;  // nplotYZ
 
 
 Procedure TfMain.lplotXZ(odStavca,PoStavec:longint; Mierka:single; Farba:longint);

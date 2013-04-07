@@ -74,6 +74,7 @@ type
     procedure FromEditChange(Sender: TObject);
     procedure ToEditChange(Sender: TObject);
     procedure SpineModelClick(Sender: TObject);
+    procedure PopisPraceChange(Sender: TObject);
 
   private
     { Private declarations }

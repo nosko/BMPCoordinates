@@ -91,6 +91,7 @@ var
   AppStatus                 : String;
   StlacenyButtonLeft        : boolean;
   Xorigin,Yorigin,Zorigin   : single;
+  NazovVstupu               : string;
   HodnotaVstupu             : extended;
   VratitVstup               : boolean;
   FarbaDefinovanehoRozmeru  : integer;
@@ -99,7 +100,7 @@ var
 
 implementation
 
-uses ruler,stavce,Matrix;
+uses ruler,stavce, Matrix;
 
 {$R *.dfm}
 
@@ -153,11 +154,11 @@ begin
   UzlyStavca(17);
   MierkaXZ :=1 {1000*floatPx / floatReal};
   Farba:=clRed;
-  fMain.lplotXZ(KreslitOdStavca,PoStavec,MierkaXZ, Farba);
+  fMain.lplotXZ(KreslitOdStavca,AktualneDefinovanyStavec,MierkaXZ, Farba);
 
   Farba:=clBlue;
   MierkaYZ := 1 {1000*floatPx / floatReal};
-  fMain.lplotYZ(KreslitOdStavca,PoStavec,MierkaYZ,Farba);
+  fMain.lplotYZ(KreslitOdStavca,AktualneDefinovanyStavec,MierkaYZ,Farba);
 end;
 
 procedure TfMain.KresliStavce(Sender: TObject);
@@ -719,9 +720,7 @@ begin
      begin
      KresliBodyStavcaProjekciaYZ(i,Mierka, Farba, Hrubka);
      end;
-end;
-
-// nplotYZ
+end;  // nplotYZ
 
 
 Procedure TfMain.lplotXZ(odStavca,PoStavec:longint; Mierka:single; Farba:longint);

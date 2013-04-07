@@ -132,9 +132,9 @@ object fMain: TfMain
   end
   object Img: TImage32
     Left = 8
-    Top = 81
-    Width = 4000
-    Height = 5000
+    Top = 80
+    Width = 886
+    Height = 633
     Bitmap.ResamplerClassName = 'TNearestResampler'
     BitmapAlign = baTopLeft
     Scale = 1.000000000000000000

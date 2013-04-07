@@ -74,6 +74,7 @@ type
     procedure FromEditChange(Sender: TObject);
     procedure ToEditChange(Sender: TObject);
     procedure SpineModelClick(Sender: TObject);
+    procedure PopisPraceChange(Sender: TObject);
 
   private
     { Private declarations }
@@ -99,7 +100,7 @@ var
 
 implementation
 
-uses ruler,stavce,Matrix;
+uses ruler,stavce, Matrix;
 
 {$R *.dfm}
 
@@ -719,6 +720,9 @@ begin
      begin
      KresliBodyStavcaProjekciaYZ(i,Mierka, Farba, Hrubka);
      end;
+end;  procedure TfMain.PopisPraceChange(Sender: TObject);
+begin
+
 end;
 
 // nplotYZ

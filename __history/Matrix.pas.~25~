@@ -74,8 +74,6 @@ var
 
 implementation
 
-uses main;
-
 {$R *.dfm}
 
 procedure TForm1.ZapisDatabazu(index:integer);
@@ -96,11 +94,12 @@ end;
 
 
 procedure TForm1.Button1Click(Sender: TObject);
+var index:  Integer;
 begin
     // Prvy prvok v listboxe ma index 0, pole su indexovane od 1
-    AktualneDefinovanyStavec := 25-(ListBox1.ItemIndex+1);
-    Form1.ZapisDatabazu(AktualneDefinovanyStavec);
-    Fmain.PopisPrace.Text:='c'+IntToStr(AktualneDefinovanyStavec);
+    index := 25-(ListBox1.ItemIndex+1);
+    Form1.ZapisDatabazu(index);
+    PopisPrace.Text:='c'+IntToStr(AktualneDefinovanyStavec);
     NazovVstupu:='c';
 end;
 

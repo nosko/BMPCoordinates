@@ -67,14 +67,9 @@ type
 var
   Form1: TForm1;
   AAA,BBB,CCC,DDD,XXX,YYY,ZZZ,ZZY,ALX,ALY,ALZ,ZUZ: array[1..24] of single;
-  AktualnaPolozka                                          : Integer;
-  KreslitOdStavca,KreslitPoStavec,AktualneDefinovanyStavec : Integer;
-  NazovVstupu                                               : string;
-
-
+  AktualnaPolozka                                 : Integer;
+  KreslitOdStavca,AktualneDefinovanyStavec                 : Integer;
 implementation
-
-uses main;
 
 {$R *.dfm}
 
@@ -96,12 +91,11 @@ end;
 
 
 procedure TForm1.Button1Click(Sender: TObject);
+var index:  Integer;
 begin
     // Prvy prvok v listboxe ma index 0, pole su indexovane od 1
-    AktualneDefinovanyStavec := 25-(ListBox1.ItemIndex+1);
-    Form1.ZapisDatabazu(AktualneDefinovanyStavec);
-    Fmain.PopisPrace.Text:='c'+IntToStr(AktualneDefinovanyStavec);
-    NazovVstupu:='c';
+    index := 25-(ListBox1.ItemIndex+1);
+    Form1.ZapisDatabazu(index);
 end;
 
 
@@ -346,7 +340,7 @@ begin
       DDD[i]:=DDD[i]*nasob;
       XXX[i]:=Xcoor-XXX[i]*nasob;
       YYY[i]:=Ycoor-YYY[i]*nasob;
-      ZZZ[i]:=Zcoor-ZZZ[i]*nasob;
+      ZZZ[i]:=Zcoor+ZZZ[i]*nasob;
     end;
     For i:=1 to 24 do
        begin

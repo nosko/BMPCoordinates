@@ -24,7 +24,7 @@ Procedure S_stavn03;
 var
 PocetStavcov, POMDIM, POSUNC,CSS,IZ                             : longint;
 XSUR,YSUR,ZSUR,XROT,YROT,ZROT,PERC,PERC1,a,b,c,dd,uhol,ZI       : single;
-ZZ{,AAA,BBB,CCC,DDD,XXX,YYY,ZZZ,ALX,ALY,ALZ}                    : MalePole;
+ZZ{,AAA,BBB,CCC,DDD,XXX,YYY,ZZZ,ALX,ALY,ALZ}                      : MalePole;
 {
 *dim,ZZ,,12              ! Pomocne pole Z suradnic hladin stavca a platnicky
 *dim,AAA,,32             ! Pomocne pole rozmerov stavca
@@ -67,9 +67,9 @@ begin
       end
    else
       begin
-      if x<1E32 then NX[UZOL]:=x;  //  ?????????????????????
-      if y<1E32 then NY[UZOL]:=y;
-      if z<1E32 then NZ[UZOL]:=z;
+      NX[UZOL]:=x;
+      NY[UZOL]:=y;
+      NZ[UZOL]:=z;
       end;
 end;
 
@@ -527,14 +527,14 @@ N(    17+IZ,  0,-NY[14+IZ],ZI);
 N(    18+IZ,  NX[15+IZ],-NY[15+IZ],ZI);          // tak ako 14 len zaporne y
 N(    20+IZ,  b/48    ,4*a/12 ,ZI);              //N(    20+IZ,  0    ,3*b/8 ,ZI);
 NINC( 21+IZ,  2+IZ,20+IZ,70);
-N(    22+IZ,  NX[20+IZ],-NY[20+IZ],ZI);                  // tak ako 20 len zaporne y
+N(    22+IZ,  NX[20],-NY[20+IZ],ZI);                  // tak ako 20 len zaporne y
 NINC( 23+IZ,  2+IZ,22+IZ,70);
 N(    24+IZ,  2*b/48    ,5/12*a   ,ZI);               //N(    24+IZ,  0    ,b/2   ,ZI);
 N(    25+IZ,  b/12 ,NY[20+IZ],ZI);               //?????
 NINC( 26+IZ,  2+IZ,24+IZ,50);
 NINC( 16+IZ,  26+IZ,10+IZ,50);
 N(    19+IZ,  NX[16+IZ],-NY[16+IZ],ZI);
-N(    27+IZ,  NX[24+IZ],-NY[24+IZ],ZI);
+N(    27+IZ,  NX[24],-NY[24+IZ],ZI);
 N(    28+IZ,  NX[25+IZ],-NY[25+IZ],ZI);
 N(    29+IZ,  NX[26+IZ],-NY[26+IZ],ZI);
 N(    30+IZ,  b/8  ,11/24*a ,ZI);                //N(    30+IZ,  b/8  ,5*b/8 ,ZI);
@@ -794,12 +794,12 @@ for STAVEC:=1 to PocetStavcov do
   XROT:=0;                  // ROTACIA okolo osi X
   YROT:=0;                  // ROTACIA okolo osi Y
   ZROT:=0;                  // ROTACIA okolo osi Z
-  PERC:=100*(1-ZUZ[stavec]/BBB[stavec]) {87.5};               // maximalne zuzenie stavca    v %
-   { PERC1:=105;               // maximalne rozsirenie stavca v %}
+  PERC:=87.5;               // maximalne zuzenie stavca    v %
+  PERC1:=105;               // maximalne rozsirenie stavca v %
   a :=AAA[stavec];          // v m
   b :=BBB[stavec];          // v m
   c :=CCC[stavec];          // v m
-  dd:=DDD[stavec];          // v m      ASI SA VOBEC NEPOUZIVA v Delphi je pouzite pole pre suradnice z v projekcii YZ
+  dd:=DDD[stavec];          // v m
   // uhol:=ALY(stavec);
   IZ:=3600+CSS-POSUNC;      // CISLA UZLOV na HORNEJ HRANE PREDCHADZAJUCEHO STAVCA
   ZI:=ZSUR-(c/2+dd);        // Suradnica v smere osi z

@@ -24,7 +24,7 @@ Procedure S_stavn03;
 var
 PocetStavcov, POMDIM, POSUNC,CSS,IZ                             : longint;
 XSUR,YSUR,ZSUR,XROT,YROT,ZROT,PERC,PERC1,a,b,c,dd,uhol,ZI       : single;
-ZZ{,AAA,BBB,CCC,DDD,XXX,YYY,ZZZ,ALX,ALY,ALZ}                    : MalePole;
+ZZ{,AAA,BBB,CCC,DDD,XXX,YYY,ZZZ,ALX,ALY,ALZ}                      : MalePole;
 {
 *dim,ZZ,,12              ! Pomocne pole Z suradnic hladin stavca a platnicky
 *dim,AAA,,32             ! Pomocne pole rozmerov stavca
@@ -67,9 +67,9 @@ begin
       end
    else
       begin
-      if x<1E32 then NX[UZOL]:=x;  //  ?????????????????????
-      if y<1E32 then NY[UZOL]:=y;
-      if z<1E32 then NZ[UZOL]:=z;
+      NX[UZOL]:=x;
+      NY[UZOL]:=y;
+      NZ[UZOL]:=z;
       end;
 end;
 

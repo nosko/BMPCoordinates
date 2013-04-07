@@ -128,13 +128,12 @@ object fMain: TfMain
     Margins.Bottom = 2
     Caption = 'Spine model'
     TabOrder = 6
-    OnClick = SpineModelClick
   end
   object Img: TImage32
     Left = 8
-    Top = 81
-    Width = 4000
-    Height = 5000
+    Top = 80
+    Width = 886
+    Height = 633
     Bitmap.ResamplerClassName = 'TNearestResampler'
     BitmapAlign = baTopLeft
     Scale = 1.000000000000000000
@@ -237,20 +236,6 @@ object fMain: TfMain
     TabOrder = 17
     Text = 'ToEdit'
     OnChange = ToEditChange
-  end
-  object PopisPrace: TEdit
-    Left = 312
-    Top = 32
-    Width = 74
-    Height = 43
-    Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -29
-    Font.Name = 'Tahoma'
-    Font.Style = []
-    ParentFont = False
-    TabOrder = 18
-    Text = 'PopisPrace'
   end
   object Open: TOpenDialog
     Left = 424
