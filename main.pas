@@ -37,6 +37,8 @@ type
     from: TLabel;
     Label4: TLabel;
     PopisPrace: TEdit;
+    Do_not_change: TButton;
+    Clear: TButton;
     procedure bCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure bLoadClick(Sender: TObject);
@@ -74,6 +76,9 @@ type
     procedure FromEditChange(Sender: TObject);
     procedure ToEditChange(Sender: TObject);
     procedure SpineModelClick(Sender: TObject);
+    procedure Do_not_change_value(Sender: TObject);
+    procedure Do_not_changeClick(Sender: TObject);
+    procedure ClearClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -137,6 +142,7 @@ end;
 
 procedure TfMain.SpineModelClick(Sender: TObject);
 begin
+  fMain.Img.Repaint;
   fmain.KresliVsetko(KreslitOdStavca,KreslitPoStavec);
 end;
 
@@ -153,11 +159,11 @@ begin
   UzlyStavca(17);
   MierkaXZ :=1 {1000*floatPx / floatReal};
   Farba:=clRed;
-  fMain.lplotXZ(KreslitOdStavca,PoStavec,MierkaXZ, Farba);
+  fMain.lplotXZ(OdStavca,PoStavec,MierkaXZ, Farba);
 
   Farba:=clBlue;
   MierkaYZ := 1 {1000*floatPx / floatReal};
-  fMain.lplotYZ(KreslitOdStavca,PoStavec,MierkaYZ,Farba);
+  fMain.lplotYZ(OdStavca,PoStavec,MierkaYZ,Farba);
 end;
 
 procedure TfMain.KresliStavce(Sender: TObject);
@@ -319,6 +325,13 @@ begin
 end;
 
 
+procedure TfMain.ClearClick(Sender: TObject);
+begin
+  NazovVstupu:='';
+  PopisPrace.Text:='';
+  fMain.Img.Repaint;
+end;
+
 procedure TfMain.IMGCSlateral(Sender: TObject);
 begin
    Xorigin:=P1.X;
@@ -351,10 +364,7 @@ begin
 
  if Button= mbRight then
   begin
- {      fMain.Vstup_c_Click(Sender);
-       fMain.Vstup_b_Click(Sender);
-       fMain.Vstup_a_Click(Sender);
-       fMain.ZuzenieClick(Sender);}
+
   end;   // mouse button RIGHT
 end;
 
@@ -372,21 +382,36 @@ if StlacenyButtonLeft then
   PomocHrubka:=fMain.Img.Canvas.Pen.Width;
 
   fMain.Img.Canvas.Pen.Color:=FarbaDefinovanehoRozmeru;   // farba ciara definovaneho rozmeru
-  fMain.Img.Canvas.Pen.Width:=6;
+  fMain.Img.Canvas.Pen.Width:=3;
   fMain.Img.Canvas.MoveTo(P1.X,P1.Y);
   fMain.Img.Canvas.LineTo(P2.X,P2.Y);     //ciara definovaneho rozmeru
 
-  if Immediate_action.Checked then
-     begin
-       VratitVstupy(AktualneDefinovanyStavec,NazovVstupu,P1,P2);
-       KresliVsetko(AktualneDefinovanyStavec,AktualneDefinovanyStavec);
-     end;
+  if NazovVstupu<>'' then   // ak je zadany nazov veliciny ktora sa zadava
+    begin
+     VratitVstupy(AktualneDefinovanyStavec,NazovVstupu,P1,P2);
+     if Immediate_action.Checked then
+       begin
+         if Spine_preview.checked then
+           begin
+           fMain.Img.Repaint;
+           KresliVsetko(1,AktualneDefinovanyStavec);
+           end
+         else
+           begin
+           fMain.Img.Repaint;
+           KresliVsetko(AktualneDefinovanyStavec,AktualneDefinovanyStavec);
+           end;
+       end;
+    end;
   fMain.Img.Canvas.Pen.Color:=PomocFarba;  // nastavenie povodnej farby
   fMain.Img.Canvas.Pen.Width:=PomocHrubka; // nastavenie povodnej hrubky
 
   end;
   ChangeRuler;
 end;
+
+
+
 
 
 
@@ -414,15 +439,14 @@ begin
   begin
   if NazovVstupu<>'' then   // ak je zadany nazov veliciny ktora sa zadava
     begin
-    HodnotaVstupu:=sqrt(sqr(P2.X-P1.X)+sqr(P2.Y-P1.Y));
-    {if Dialogs.MessageDlg('Write value    '+NazovVstupu+'= '+
+       {HodnotaVstupu:=sqrt(sqr(P2.X-P1.X)+sqr(P2.Y-P1.Y));
+       if Dialogs.MessageDlg('Write value    '+NazovVstupu+'= '+
                            FloatToStrF(HodnotaVstupu,ffFixed,5,3)+
                            '    in Spine geometry database, vertebra '+
                                 IntToStr(AktualneDefinovanyStavec)+ '? ',
        mtConfirmation, [mbYes, mbNo], 0, mbYes) = mrYes then}
-       begin
+
        VratitVstupy(AktualneDefinovanyStavec,NazovVstupu,P1,P2);
-       if Spine_preview.checked then KresliVsetko(AktualneDefinovanyStavec,AktualneDefinovanyStavec);
        if DalsiVstup(Sender,NazovVstupu)='c' then
           begin
           if AktualneDefinovanyStavec<KreslitPoStavec then
@@ -432,7 +456,7 @@ begin
             fMain.Vstup_c_Click(Sender);
             end;
           end;
-       end;
+
     end;
   end;
 end; //Tfmain.ImgMouseUP
@@ -470,6 +494,7 @@ begin
             DalsiVstup:=' ';
 end;
 
+
 Procedure TfMain.VratitVstupy(Stavec:integer; NazovVstupu:string; P1,P2:TPoint);
 var  dX,dY,meanX,meanY,dlzka,uhol  :extended;
 begin
@@ -496,7 +521,7 @@ begin
                             else uhol:=pi+uhol;
                   end;
            end;
-    uhol:=180/pi*uhol;
+    uhol:=180-180/pi*uhol;     // zmena smeru osi x
 
     case NazovVstupu[1] of
     'a':begin
@@ -523,7 +548,24 @@ begin
 end;  //TfMain.VratitVstupy
 
 
+procedure TfMain.Do_not_changeClick(Sender: TObject);
+// ak nechceme menit prave zadavanu velicinu a chceme sa posunut dalej
+begin
+   fmain.Do_not_change_value(Sender);
+end;
 
+procedure Tfmain.Do_not_change_value(Sender: TObject);
+begin
+  if DalsiVstup(Sender,NazovVstupu)='c' then
+          begin
+          if AktualneDefinovanyStavec<KreslitPoStavec then
+            begin
+            inc(AktualneDefinovanyStavec);
+            Form1.ListBox1.ItemIndex:=24-AktualneDefinovanyStavec;
+            fMain.Vstup_c_Click(Sender);
+            end;
+          end;
+end;
 
 
 Procedure BodXZ(Uzol:longint; Mierka:single; Farba, Hrubka:longint);

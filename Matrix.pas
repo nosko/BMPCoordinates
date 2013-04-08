@@ -351,7 +351,7 @@ begin
     For i:=1 to 24 do
        begin
        ZZY[i]:=ZZZ[i];        // zuradnica z v projekcii yz zatial rovnaka ako suradnica z v projekcii xz
-       ZUZ[i]:=0.125*BBB[i];  // zuzenie stavca 2.5% z rozmeru BBB
+       ZUZ[i]:=0.03*BBB[i];  // zuzenie stavca 2.5% z rozmeru BBB
        end;
 
     // Vytvor selectbox a nastav ho na prvy element

@@ -271,8 +271,8 @@ var x0,y0,z0 :double;
 !       arg3    delta Y
 !       arg4    delta Z}
 begin
-x0:=NX[arg1]+ arg2 ;
-y0:=NY[arg1]+ arg3 ;
+x0:=-NX[arg1]+ arg2 ;               //x0:=NX[arg1]+ arg2 ;    zmena smeru osi X
+y0:=-NY[arg1]+ arg3 ;                //y0:=NY[arg1]+ arg3 ;   zmena smeru osi Y
 z0:=NZ[arg1]+ arg4 ;
 N(arg1,x0,y0,z0);
 end; // NS
@@ -794,7 +794,7 @@ for STAVEC:=1 to PocetStavcov do
   XROT:=0;                  // ROTACIA okolo osi X
   YROT:=0;                  // ROTACIA okolo osi Y
   ZROT:=0;                  // ROTACIA okolo osi Z
-  PERC:=100*(1-ZUZ[stavec]/BBB[stavec]) {87.5};               // maximalne zuzenie stavca    v %
+  PERC:=100*(1-ZUZ[stavec]/(3/4*BBB[stavec])) {87.5};               // maximalne zuzenie stavca    v %
    { PERC1:=105;               // maximalne rozsirenie stavca v %}
   a :=AAA[stavec];          // v m
   b :=BBB[stavec];          // v m
