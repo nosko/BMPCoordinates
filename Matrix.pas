@@ -53,9 +53,29 @@ type
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
+    ModelChrbtice: TButton;
+    Zmazat: TButton;
+    Label4: TLabel;
+    Label5: TLabel;
+    Edit1: TEdit;
+    Edit2: TEdit;
+    ZadavatC: TButton;
+    ZadavatB: TButton;
+    ZadavatDelta1: TButton;
+    ZadavatA: TButton;
+    PopisPraceMatrix: TEdit;
+    procedure MatrixCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure ListBox1Click(Sender: TObject);
-    procedure ZapisDatabazu(index:integer);
+    procedure ModelChrbticeClick(Sender: TObject);
+    procedure ZmazatClick(Sender: TObject);
+    procedure Edit1Change(Sender: TObject);
+    procedure Edit2Change(Sender: TObject);
+    procedure ZadavatCClick(Sender: TObject);
+    procedure ZadavatBClick(Sender: TObject);
+    procedure ZadavatDelta1Click(Sender: TObject);
+    procedure ZadavatAClick(Sender: TObject);
+    Procedure ZmenPristupNaABCD(MenitC,MenitB,MenitZuzenie,MenitA:boolean);
   private
     { Private declarations }
   public
@@ -78,33 +98,105 @@ uses main;
 
 {$R *.dfm}
 
-procedure TForm1.ZapisDatabazu(index:integer);
+Procedure TForm1.ZmenPristupNaABCD(MenitC,MenitB,MenitZuzenie,MenitA:boolean);
 begin
-    AAA[index]:= StrToFloat(aaaField.Text);   // stavec L5
-    BBB[index]:= StrToFloat(bbbField.Text);
-    CCC[index]:= StrToFloat(cccField.Text);
-
-    XXX[index]:= StrToFloat(xxxField.Text);
-    YYY[index]:= StrToFloat(yyyField.Text);
-    ZZZ[index]:= StrToFloat(zzzField.Text);
-    ZZY[index]:= StrToFloat(dddField.Text);
-    ALX[index]:= StrToFloat(alxField.Text);
-    ALY[index]:= StrToFloat(alyField.Text);
-    ALZ[index]:= StrToFloat(alzField.Text);
-    ZUZ[index]:= StrToFloat(zuzField.Text);
+   ZadavatC.Enabled:=MenitC;
+   ZadavatB.Enabled:=MenitB;
+   ZadavatDelta1.Enabled:=MenitZuzenie;
+   ZadavatB.Enabled:=MenitA;
 end;
 
+
+
+procedure TForm1.ZadavatAClick(Sender: TObject);
+begin
+  fMain.Vstup_a_Click(Sender);
+end;
+
+procedure TForm1.ZadavatBClick(Sender: TObject);
+begin
+   fMain.Vstup_b_Click(Sender);
+end;
+
+procedure TForm1.ZadavatCClick(Sender: TObject);
+begin
+   fMain.Vstup_c_Click(Sender);
+end;
+
+procedure TForm1.ZadavatDelta1Click(Sender: TObject);
+begin
+  fMain.ZuzenieClick(Sender);
+end;
+
+
+
+procedure TForm1.ZmazatClick(Sender: TObject);
+begin
+  fMain.ClearClick(Sender);
+end;
 
 procedure TForm1.Button1Click(Sender: TObject);
+var
+  F,Fout  : TextFile;
+  i       : integer;
+  S       : string;
 begin
-    // Prvy prvok v listboxe ma index 0, pole su indexovane od 1
-    AktualneDefinovanyStavec := 25-(ListBox1.ItemIndex+1);
-    Form1.ZapisDatabazu(AktualneDefinovanyStavec);
-    Fmain.PopisPrace.Text:='c'+IntToStr(AktualneDefinovanyStavec);
-    NazovVstupu:='c';
+  AssignFile(Fout, 'S8'); { ANSYS vstup }
+  Rewrite(Fout);
+    AssignFile(F, 'S8_1_cast');  // prva cast ANSYS suboru skopitovana bezo zmeny
+    Reset(F);
+    while not EOF(F) do
+      begin
+      Readln(F, S);                        { Read first line of file }
+      Writeln(Fout,S);
+      end;
+    CloseFile(F);
+
+    Writeln(Fout,'PocetStavcov=',KreslitPoStavec);
+    Writeln(Fout);
+
+    for I := 1 to KreslitPoStavec do
+      begin
+      Writeln(Fout,'AAA(',i,')=',FloatToStrF(AAA[i],ffFixed,5,3));
+      Writeln(Fout,'BBB(',i,')=',FloatToStrF(BBB[i],ffFixed,5,3));
+      Writeln(Fout,'CCC(',i,')=',FloatToStrF(CCC[i],ffFixed,5,3));
+      Writeln(Fout,'DDD(',i,')=0');
+      Writeln(Fout,'XXX(',i,')=',FloatToStrF(XXX[i],ffFixed,5,3));
+      Writeln(Fout,'YYY(',i,')=',FloatToStrF(YYY[i],ffFixed,5,3));
+      Writeln(Fout,'ZZZ(',i,')=',FloatToStrF(ZZZ[i],ffFixed,5,3));
+      Writeln(Fout,'ALX(',i,')=',FloatToStrF(ALX[i],ffFixed,5,3));
+      Writeln(Fout,'ALY(',i,')=',FloatToStrF(ALY[i],ffFixed,5,3));
+      Writeln(Fout,'ALZ(',i,')=',FloatToStrF(ALZ[i],ffFixed,5,3));
+      Writeln(Fout);
+      end;
+
+
+    AssignFile(F, 'S8_3_cast');  // posledna cast ANSYS suboru skopitovana bezo zmeny
+    Reset(F);
+    while not EOF(F) do
+      begin
+      Readln(F, S);                        { Read first line of file }
+      Writeln(Fout,S);
+      end;
+    CloseFile(F);
+
+
+  CloseFile(Fout);
 end;
 
 
+
+procedure TForm1.Edit1Change(Sender: TObject);
+begin
+   fmain.FromEdit.Text:=Form1.Edit1.text;
+   KreslitOdStavca := StrToInt(fmain.FromEdit.Text);
+end;
+
+procedure TForm1.Edit2Change(Sender: TObject);
+begin
+  fmain.ToEdit.Text:=Form1.Edit2.Text;
+  KreslitPoStavec := StrToInt(fmain.ToEdit.Text);
+end;
 
 procedure TForm1.initTextFields;
 begin
@@ -359,5 +451,22 @@ begin
 
     ListBox1.ItemIndex:=AktualnaPolozka;
 end;
+
+procedure TForm1.MatrixCreate(Sender: TObject);
+begin
+  Form1.Edit1.Text:='1';
+  Form1.Edit2.Text:='1';
+  Form1.ZadavatC.Enabled:=true;
+  Form1.ZadavatB.Enabled:=true;
+  Form1.ZadavatDelta1.Enabled:=true;
+  Form1.ZadavatA.Enabled:=true;
+  Form1.PopisPraceMatrix.Text:='';
+end;
+
+procedure TForm1.ModelChrbticeClick(Sender: TObject);
+begin
+  fMain.SpineModelClick(Sender);
+end;
+
 
 end.

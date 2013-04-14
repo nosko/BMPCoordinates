@@ -1,0 +1,38 @@
+!!!!!!SKOLIOZA........!uhla ALZ zmensene o polovicu
+
+fini
+/clear
+
+
+SILA101=10   !!!!!!!!!!!!!!!!!!!!!!!!! pozor toto su sily v svaloch
+SILA102=20
+SILA103=30
+SILA104=40
+SILA110=50
+
+                        ! 12. Marec 2001 Oprava Materialov
+                        ! 00_06_14
+                        ! 2002, januar, 7. treti stavec
+                          Posun cislovania stavcov definovany premennou POSUNC
+                        ! 2002_01_09  translacia a ROTACIA 3 STAVCE, SVALY
+                        ! 11/2007  dynamicke namahanie
+/prep7                  !
+/uis,msgp,3
+*afun,deg
+!                /gre,stavec4,vie
+/gre,PO
+POMDIM=0                ! pozri STAVSEL1.MAC
+POSUNC=6000
+*dim,ZZ,,12             ! Pomocne pole Z suradnic hladin stavca a platnicky
+
+*dim,AAA,,32             ! Pomocne pole rozmerov stavca
+*dim,BBB,,32             ! Pomocne pole rozmerov stavca
+*dim,CCC,,32             ! Pomocne pole rozmerov stavca
+*dim,DDD,,32             ! Pomocne pole rozmerov stavca
+*dim,XXX,,32             ! Pomocne pole suradnic pociatku lokalnej SS stavca
+*dim,YYY,,32             ! Pomocne pole suradnic pociatku lokalnej SS stavca
+*dim,ZZZ,,32             ! Pomocne pole suradnic pociatku lokalnej SS stavca
+*dim,ALX,,32             ! Pomocne pole rotacie okolo osi X, uhol alfa
+*dim,ALY,,32             ! Pomocne pole rotacie okolo osi Y, uhol alfa
+*dim,ALZ,,32             ! Pomocne pole rotacie okolo osi Z, uhol alfa
+

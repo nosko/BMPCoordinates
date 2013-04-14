@@ -2,8 +2,8 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Stavce'
-  ClientHeight = 410
-  ClientWidth = 499
+  ClientHeight = 486
+  ClientWidth = 502
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clDefault
@@ -12,10 +12,11 @@ object Form1: TForm1
   Font.Style = []
   OldCreateOrder = False
   Position = poDesigned
+  OnCreate = MatrixCreate
   PixelsPerInch = 96
   TextHeight = 16
   object Label8: TLabel
-    Left = 85
+    Left = 96
     Top = 287
     Width = 31
     Height = 16
@@ -26,7 +27,7 @@ object Form1: TForm1
     Caption = 'alfa x'
   end
   object Label9: TLabel
-    Left = 85
+    Left = 96
     Top = 316
     Width = 31
     Height = 16
@@ -37,7 +38,7 @@ object Form1: TForm1
     Caption = 'alfa y'
   end
   object Label10: TLabel
-    Left = 85
+    Left = 96
     Top = 346
     Width = 31
     Height = 16
@@ -325,11 +326,25 @@ object Form1: TForm1
     ParentFont = False
   end
   object Label3: TLabel
-    Left = 85
+    Left = 95
     Top = 10
     Width = 79
     Height = 16
     Caption = 'Vertebra data'
+  end
+  object Label4: TLabel
+    Left = 8
+    Top = 431
+    Width = 27
+    Height = 16
+    Caption = 'from'
+  end
+  object Label5: TLabel
+    Left = 8
+    Top = 408
+    Width = 11
+    Height = 16
+    Caption = 'to'
   end
   object Image321: TImage32
     Left = 189
@@ -14244,7 +14259,7 @@ object Form1: TForm1
   object ListBox1: TListBox
     Left = 46
     Top = 9
-    Width = 27
+    Width = 42
     Height = 392
     Margins.Left = 4
     Margins.Top = 4
@@ -14284,9 +14299,9 @@ object Form1: TForm1
     TabOrder = 5
   end
   object alxField: TEdit
-    Left = 128
+    Left = 139
     Top = 280
-    Width = 54
+    Width = 43
     Height = 24
     Margins.Left = 4
     Margins.Top = 4
@@ -14295,9 +14310,9 @@ object Form1: TForm1
     TabOrder = 8
   end
   object alyField: TEdit
-    Left = 128
+    Left = 139
     Top = 309
-    Width = 54
+    Width = 43
     Height = 24
     Margins.Left = 4
     Margins.Top = 4
@@ -14306,9 +14321,9 @@ object Form1: TForm1
     TabOrder = 9
   end
   object alzField: TEdit
-    Left = 128
+    Left = 139
     Top = 339
-    Width = 54
+    Width = 43
     Height = 24
     Margins.Left = 4
     Margins.Top = 4
@@ -14317,15 +14332,15 @@ object Form1: TForm1
     TabOrder = 10
   end
   object Button1: TButton
-    Left = 105
+    Left = 99
     Top = 380
-    Width = 386
+    Width = 394
     Height = 29
     Margins.Left = 4
     Margins.Top = 4
     Margins.Right = 4
     Margins.Bottom = 4
-    Caption = 'Save vertebra data'
+    Caption = 'Save vertebra data to ANSYS'
     TabOrder = 11
     OnClick = Button1Click
   end
@@ -14384,5 +14399,97 @@ object Form1: TForm1
     Margins.Right = 4
     Margins.Bottom = 4
     TabOrder = 1
+  end
+  object ModelChrbtice: TButton
+    Left = 105
+    Top = 416
+    Width = 89
+    Height = 25
+    Caption = 'Spine model'
+    TabOrder = 13
+    OnClick = ModelChrbticeClick
+  end
+  object Zmazat: TButton
+    Left = 105
+    Top = 453
+    Width = 88
+    Height = 25
+    Caption = 'Clear'
+    TabOrder = 14
+    OnClick = ZmazatClick
+  end
+  object Edit1: TEdit
+    Left = 44
+    Top = 429
+    Width = 33
+    Height = 24
+    TabOrder = 15
+    Text = 'Edit1'
+    OnChange = Edit1Change
+  end
+  object Edit2: TEdit
+    Left = 44
+    Top = 405
+    Width = 33
+    Height = 24
+    TabOrder = 16
+    Text = 'Edit2'
+    OnChange = Edit2Change
+  end
+  object ZadavatC: TButton
+    Left = 208
+    Top = 416
+    Width = 41
+    Height = 62
+    Caption = 'c'
+    TabOrder = 17
+    OnClick = ZadavatCClick
+  end
+  object ZadavatB: TButton
+    Left = 255
+    Top = 416
+    Width = 42
+    Height = 62
+    Caption = 'b'
+    TabOrder = 18
+    OnClick = ZadavatBClick
+  end
+  object ZadavatDelta1: TButton
+    Left = 303
+    Top = 416
+    Width = 42
+    Height = 62
+    Caption = 'D'
+    Font.Charset = SYMBOL_CHARSET
+    Font.Color = clDefault
+    Font.Height = -13
+    Font.Name = 'Symbol'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 19
+    OnClick = ZadavatDelta1Click
+  end
+  object ZadavatA: TButton
+    Left = 351
+    Top = 416
+    Width = 42
+    Height = 62
+    Caption = 'a'
+    TabOrder = 20
+    OnClick = ZadavatAClick
+  end
+  object PopisPraceMatrix: TEdit
+    Left = 405
+    Top = 416
+    Width = 86
+    Height = 62
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clDefault
+    Font.Height = -37
+    Font.Name = 'Tahoma'
+    Font.Style = []
+    ParentFont = False
+    TabOrder = 21
+    Text = 'PopisPraceMatrix'
   end
 end

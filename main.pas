@@ -10,8 +10,6 @@ const Setts : String = 'config.ini';
 
 type
   TfMain = class(TForm)
-    //Img: TImage32;
-
     bLoad: TButton;
     bClose: TButton;
     Open: TOpenDialog;
@@ -31,14 +29,14 @@ type
     Immediate_action: TCheckBox;
     Zuzenie: TButton;
     Label3: TLabel;
-    All_in_one: TButton;
     FromEdit: TEdit;
     ToEdit: TEdit;
     from: TLabel;
     Label4: TLabel;
     PopisPrace: TEdit;
-    Do_not_change: TButton;
     Clear: TButton;
+    LenBocnaProjekcia: TCheckBox;
+    LenPredozadnaProjekcia: TCheckBox;
     procedure bCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure bLoadClick(Sender: TObject);
@@ -59,7 +57,9 @@ type
       Shift: TShiftState; X, Y: Integer; Layer: TCustomLayer);
     Procedure VratitVstupy(Stavec:integer; NazovVstupu:string; P1,P2:TPoint);
 
-    Function DalsiVstup(Sender: TObject; var Nazov:string):char;
+    Function  DalsiVstup(Sender: TObject; var Nazov:string):char;
+    Function  DalsiVstupCBD(Sender: TObject; var Nazov:string):char;
+    Function  DalsiVstupA(Sender: TObject; var Nazov:string):char;
     Procedure KresliVsetko(OdStavca,PoStavec:integer);
     procedure KresliStavce(Sender: TObject);
     Procedure nplotXZ(odStavca,PoStavec:longint; Mierka:single; Farba:longint);  //uzly stavca
@@ -72,13 +72,14 @@ type
     procedure Vstup_b_Click(Sender: TObject);
     procedure Vstup_c_Click(Sender: TObject);
     procedure ZuzenieClick(Sender: TObject);
-    procedure All_in_oneClick(Sender: TObject);
     procedure FromEditChange(Sender: TObject);
     procedure ToEditChange(Sender: TObject);
     procedure SpineModelClick(Sender: TObject);
-    procedure Do_not_change_value(Sender: TObject);
-    procedure Do_not_changeClick(Sender: TObject);
     procedure ClearClick(Sender: TObject);
+    procedure PopisPraceChange(Sender: TObject);
+    procedure LenBocnaProjekciaClick(Sender: TObject);
+    procedure LenPredozadnaProjekciaClick(Sender: TObject);
+    procedure LenBocnaClick(Sender: TObject);
 
   private
     { Private declarations }
@@ -110,13 +111,20 @@ uses ruler,stavce,Matrix;
 
 { TForm1 }
 
-procedure TfMain.All_in_oneClick(Sender: TObject);
-var i:integer;
+{procedure ConvertJpegFileToBitmapFile(const SourceFilename, DestinationFilename: String);
+var
+jpeg: TJpegImage;
+bmp: TBitmap;
 begin
-    AktualneDefinovanyStavec:=KreslitOdStavca;
-    Form1.ListBox1.ItemIndex:=24-AktualneDefinovanyStavec;
-    fMain.Vstup_c_Click(Sender);
-end;
+jpeg := TJpegImage.Create;
+jpeg.LoadFromFile(SourceFilename);
+bmp := TBitmap.Create;
+bmp.Assign(jpeg);
+bmp.SaveToFile(DestinationFilename);
+bmp.Free;
+jpeg.Free;
+end;}
+
 
 procedure TfMain.bCloseClick(Sender: TObject);
 begin
@@ -197,14 +205,26 @@ end;
 
 procedure TfMain.FormCreate(Sender: TObject);
 begin
+floatReal:=1;
+
 AppStatus := 'Init';
 StlacenyButtonLeft:=false;
 Bmp := TBitmap.Create;
 Open.InitialDir := ExtractFilePath(Application.ExeName);
 FromEdit.Text:='1';
 ToEdit.Text:='1';
+
+
 PopisPrace.Text:='';
 PopisPrace.Enabled:=false;
+
+LenBocnaProjekcia.Checked:=false;
+    Vstup_c_.Enabled:=true;
+    Vstup_b_.Enabled:=true;
+    Zuzenie.Enabled:=true;
+
+LenPredozadnaProjekcia.Checked:=false;
+    Vstup_a_.Enabled:=true;
 
 AktualnaPolozka:= 23;  // Aktualna polozka v okne Stavce data 23 znamena cislovanie od hora zacinajuce od nuly
 KreslitOdStavca:=1;
@@ -243,8 +263,8 @@ fRuler.Left := fMain.Width - Form1.Width;
 fRuler.Top := Form1.Height {fMain.Height - fRuler.Height - 20-150};
 // fRuler.Show;
 
-Form1.Left := fMain.Width - Form1.Width-10;
-Form1.Top := {fMain.Height - Form1.Height - fRuler.Height - 5}10;
+Form1.Left := fMain.Width - Form1.Width-40;
+Form1.Top := {fMain.Height - Form1.Height - fRuler.Height - 5}100;
 Form1.Show;
 
 Form1.loadData;
@@ -284,6 +304,7 @@ end;
 procedure TfMain.Vstup_a_Click(Sender: TObject);
 begin
   PopisPrace.Text:='a'+IntToStr(AktualneDefinovanyStavec);
+  Form1.PopisPraceMatrix.Text:=fMain.PopisPrace.Text;
   NazovVstupu:='a';
   FarbaDefinovanehoRozmeru:=clBlue;
 end;
@@ -291,6 +312,7 @@ end;
 procedure TfMain.Vstup_b_Click(Sender: TObject);
 begin
   PopisPrace.Text:='b'+IntToStr(AktualneDefinovanyStavec);
+  Form1.PopisPraceMatrix.Text:=fMain.PopisPrace.Text;
   NazovVstupu:='b';
   FarbaDefinovanehoRozmeru:=clYellow;
 end;
@@ -298,6 +320,7 @@ end;
 procedure TfMain.Vstup_c_Click(Sender: TObject);
 begin
   PopisPrace.Text:='c'+IntToStr(AktualneDefinovanyStavec);
+  Form1.PopisPraceMatrix.Text:=fMain.PopisPrace.Text;
   NazovVstupu:='c';
   FarbaDefinovanehoRozmeru:=clRed;
 end;
@@ -305,9 +328,39 @@ end;
 procedure TfMain.ZuzenieClick(Sender: TObject);
 begin
   PopisPrace.Text:='d'+IntToStr(AktualneDefinovanyStavec);
+  Form1.PopisPraceMatrix.Text:=fMain.PopisPrace.Text;
   NazovVstupu:='d';
   FarbaDefinovanehoRozmeru:=clGreen;
 end;
+
+
+procedure TfMain.LenPredozadnaProjekciaClick(Sender: TObject);
+var PB:boolean;
+begin
+   PB:=LenPredozadnaProjekcia.Checked;
+   Vstup_c_.Enabled:=   not  PB;
+   Vstup_b_.Enabled:=   not  PB;
+   Zuzenie.Enabled:=    not  PB;
+
+   Form1.ZadavatC.Enabled:=        not  PB;
+   Form1.ZadavatB.Enabled:=        not  PB;
+   Form1.ZadavatDelta1.Enabled:=   not  PB;
+end;
+
+procedure TfMain.LenBocnaClick(Sender: TObject);
+var PB:boolean;
+begin
+end;
+
+procedure TfMain.LenBocnaProjekciaClick(Sender: TObject);
+var PB:boolean;
+begin
+   PB:=LenBocnaProjekcia.Checked;
+   Vstup_a_.Enabled:=              not  PB;
+   Form1.ZadavatA.Enabled:=        not  PB;
+end;
+
+
 
 procedure TfMain.LoadConfig;
 var f : TINIFile;
@@ -329,6 +382,7 @@ procedure TfMain.ClearClick(Sender: TObject);
 begin
   NazovVstupu:='';
   PopisPrace.Text:='';
+  Form1.PopisPraceMatrix.Text:=fMain.PopisPrace.Text;
   fMain.Img.Repaint;
 end;
 
@@ -382,7 +436,7 @@ if StlacenyButtonLeft then
   PomocHrubka:=fMain.Img.Canvas.Pen.Width;
 
   fMain.Img.Canvas.Pen.Color:=FarbaDefinovanehoRozmeru;   // farba ciara definovaneho rozmeru
-  fMain.Img.Canvas.Pen.Width:=3;
+  fMain.Img.Canvas.Pen.Width:=1;
   fMain.Img.Canvas.MoveTo(P1.X,P1.Y);
   fMain.Img.Canvas.LineTo(P2.X,P2.Y);     //ciara definovaneho rozmeru
 
@@ -426,7 +480,7 @@ begin
   P2.X := X;
   P2.Y := Y;
   fMain.Img.Canvas.Pen.Color:=FarbaDefinovanehoRozmeru {clBlue};
-  fMain.Img.Canvas.Pen.Width:=5;
+  fMain.Img.Canvas.Pen.Width:=3;
   if (p1.x<>p2.X) and (p1.Y <> p2.y) then
      begin
      fMain.Img.Canvas.MoveTo(P1.X,P1.Y);
@@ -435,19 +489,13 @@ begin
   ChangeRuler;
   end;
 
-  if Button= mbRight then  // otazka ci zapisat hodnoty do databazy
+  if Button= mbRight then  //
   begin
-  if NazovVstupu<>'' then   // ak je zadany nazov veliciny ktora sa zadava
+  if NazovVstupu<>'' then   // ak je zadany nazov veliciny (rozmeru c,b,a,d) ktora sa zadava
     begin
-       {HodnotaVstupu:=sqrt(sqr(P2.X-P1.X)+sqr(P2.Y-P1.Y));
-       if Dialogs.MessageDlg('Write value    '+NazovVstupu+'= '+
-                           FloatToStrF(HodnotaVstupu,ffFixed,5,3)+
-                           '    in Spine geometry database, vertebra '+
-                                IntToStr(AktualneDefinovanyStavec)+ '? ',
-       mtConfirmation, [mbYes, mbNo], 0, mbYes) = mrYes then}
-
-       VratitVstupy(AktualneDefinovanyStavec,NazovVstupu,P1,P2);
-       if DalsiVstup(Sender,NazovVstupu)='c' then
+     if LenBocnaProjekcia.Checked then
+        begin
+        if DalsiVstup(Sender,NazovVstupu)='c' then
           begin
           if AktualneDefinovanyStavec<KreslitPoStavec then
             begin
@@ -456,14 +504,46 @@ begin
             fMain.Vstup_c_Click(Sender);
             end;
           end;
+        end
+     else
+        if LenPredozadnaProjekcia.Checked then
+         begin
+         if DalsiVstup(Sender,NazovVstupu)='a' then
+          begin
+          if AktualneDefinovanyStavec<KreslitPoStavec then
+            begin
+            inc(AktualneDefinovanyStavec);
+            Form1.ListBox1.ItemIndex:=24-AktualneDefinovanyStavec;
+            fMain.Vstup_a_Click(Sender);
+            end;
+          end;
+         end
+      else
+        if DalsiVstup(Sender,NazovVstupu)='c' then
+          begin
+          if AktualneDefinovanyStavec<KreslitPoStavec then
+            begin
+            inc(AktualneDefinovanyStavec);
+            Form1.ListBox1.ItemIndex:=24-AktualneDefinovanyStavec;
+            fMain.Vstup_c_Click(Sender);
+            end;
+          end
 
-    end;
-  end;
+    end; //NazovVstupu<>'' then   // ak je zadany nazov veliciny ktora sa zadava
+  end; // Button= mbRight
 end; //Tfmain.ImgMouseUP
 
 Function TfMain.DalsiVstup(Sender: TObject; var Nazov:string):char;
 begin
-   if Nazov[1]='d' then
+if LenBocnaProjekcia.Checked then
+   begin
+   DalsiVstup:=fMain.DalsiVstupCBD(Sender,Nazov);
+   end
+else
+   if LenPredozadnaProjekcia.Checked then
+      DalsiVstup:=fMain.DalsiVstupA(Sender,Nazov)
+else
+   if Nazov[1]='a' then
       begin
       Nazov:='c';
       DalsiVstup:=Nazov[1];
@@ -479,20 +559,57 @@ begin
      else
        if Nazov[1]='b' then
           begin
-          Nazov:='a';
+          Nazov:='d';
           DalsiVstup:=Nazov[1];
-          fMain.Vstup_a_Click(Sender);
+          fMain.ZuzenieClick(Sender);
           end
        else
-         if Nazov[1]='a' then
+         if Nazov[1]='d' then
             begin
-            Nazov:='d';
+            Nazov:='a';
             DalsiVstup:=Nazov[1];
-            fMain.ZuzenieClick(Sender);
+            fMain.Vstup_a_Click(Sender);
             end
          else
             DalsiVstup:=' ';
 end;
+
+
+
+Function TfMain.DalsiVstupCBD(Sender: TObject; var Nazov:string):char;
+begin
+   if Nazov[1]='d' then
+      begin
+      Nazov:='c';
+      DalsiVstupCBD:=Nazov[1];
+      fMain.Vstup_c_Click(Sender);
+      end
+   else
+     if Nazov[1]='c' then
+        begin
+        Nazov:='b';
+        DalsiVstupCBD:=Nazov[1];
+        fMain.Vstup_b_Click(Sender);
+        end
+     else
+       if Nazov[1]='b' then
+          begin
+          Nazov:='d';
+          DalsiVstupCBD:=Nazov[1];
+          fMain.ZuzenieClick(Sender);
+          end
+       else
+          DalsiVstupCBD:=' ';
+end;
+
+
+
+Function TfMain.DalsiVstupA(Sender: TObject; var Nazov:string):char;
+begin
+    DalsiVstupA:='a';
+end;
+
+
 
 
 Procedure TfMain.VratitVstupy(Stavec:integer; NazovVstupu:string; P1,P2:TPoint);
@@ -529,43 +646,32 @@ begin
         Form1.alxField.Text:=FloatToStrF(uhol,ffFixed,5,3);
         Form1.yyyField.Text:=FloatToStrF(MeanX,ffFixed,5,3);
         Form1.dddField.Text:=FloatToStrF(MeanY,ffFixed,5,3);
+         AAA[AktualneDefinovanyStavec]:= dlzka;
+         ALX[AktualneDefinovanyStavec]:= uhol;
+         YYY[AktualneDefinovanyStavec]:= MeanX;
+         ZZY[AktualneDefinovanyStavec]:= MeanY;
         end;
     'b':begin
         Form1.bbbField.Text:=FloatToStrF(dlzka,ffFixed,5,3);
+         BBB[AktualneDefinovanyStavec]:= dlzka;
         end;
     'c':begin
         Form1.cccField.Text:=FloatToStrF(dlzka,ffFixed,5,3);
         Form1.alyField.Text:=FloatToStrF(uhol-90,ffFixed,5,3);
         Form1.xxxField.Text:=FloatToStrF(MeanX,ffFixed,5,3);
         Form1.zzzField.Text:=FloatToStrF(MeanY,ffFixed,5,3);
-        //Form1.zzzField.Text:=FloatToStrF(fMain.Img.Height-MeanY,ffFixed,5,3);
+         CCC[AktualneDefinovanyStavec]:= dlzka;
+         ALY[AktualneDefinovanyStavec]:= uhol-90;
+         XXX[AktualneDefinovanyStavec]:= MeanX;
+         ZZZ[AktualneDefinovanyStavec]:= MeanY;
         end;
     'd':begin
         Form1.ZUZField.Text:=FloatToStrF(dlzka,ffFixed,5,3);
+         ZUZ[AktualneDefinovanyStavec]:= dlzka;
         end;
     end;
-    Form1.ZapisDatabazu(AktualneDefinovanyStavec);
 end;  //TfMain.VratitVstupy
 
-
-procedure TfMain.Do_not_changeClick(Sender: TObject);
-// ak nechceme menit prave zadavanu velicinu a chceme sa posunut dalej
-begin
-   fmain.Do_not_change_value(Sender);
-end;
-
-procedure Tfmain.Do_not_change_value(Sender: TObject);
-begin
-  if DalsiVstup(Sender,NazovVstupu)='c' then
-          begin
-          if AktualneDefinovanyStavec<KreslitPoStavec then
-            begin
-            inc(AktualneDefinovanyStavec);
-            Form1.ListBox1.ItemIndex:=24-AktualneDefinovanyStavec;
-            fMain.Vstup_c_Click(Sender);
-            end;
-          end;
-end;
 
 
 Procedure BodXZ(Uzol:longint; Mierka:single; Farba, Hrubka:longint);
@@ -761,6 +867,11 @@ begin
      begin
      KresliBodyStavcaProjekciaYZ(i,Mierka, Farba, Hrubka);
      end;
+end;
+
+procedure TfMain.PopisPraceChange(Sender: TObject);
+begin
+
 end;
 
 // nplotYZ
