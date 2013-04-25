@@ -86,10 +86,10 @@ type
 
 var
   Form1: TForm1;
-  AAA,BBB,CCC,DDD,XXX,YYY,ZZZ,ZZY,ALX,ALY,ALZ,ZUZ: array[1..24] of single;
-  AktualnaPolozka                                          : Integer;
-  KreslitOdStavca,KreslitPoStavec,AktualneDefinovanyStavec : Integer;
-  NazovVstupu                                               : string;
+  AAA,BBB,CCC,DDD,XXX,YYY,ZZZ,ZZY,ALX,ALY,ALZ,ZUZ, BB1,CC1,CC2 : array[1..24] of single;
+  AktualnaPolozka                                              : Integer;
+  KreslitOdStavca,KreslitPoStavec,AktualneDefinovanyStavec     : Integer;
+  NazovVstupu                                                  : string;
 
 
 implementation
@@ -101,7 +101,7 @@ uses main;
 Procedure TForm1.ZmenPristupNaABCD(MenitC,MenitB,MenitZuzenie,MenitA:boolean);
 begin
    ZadavatC.Enabled:=MenitC;
-   ZadavatB.Enabled:=MenitB;
+   {ZadavatB.Enabled:=MenitB;}
    ZadavatDelta1.Enabled:=MenitZuzenie;
    ZadavatB.Enabled:=MenitA;
 end;
@@ -239,13 +239,13 @@ var i, nasob,Xcoor,Ycoor,Zcoor: Integer;
 begin
   // TODO: load&save to/from file
     AAA[1]:=0.023;   // stavec L5
-    BBB[1]:=0.015 ;
+    BBB[1]:={0.075} 400/8000;       {BBB[1]:=0.015 ;}
     CCC[1]:=0.0105;
     DDD[1]:=0.005 ;
     XXX[1]:=0     ;
     YYY[1]:=0     ;
     ZZZ[1]:=0     ;
-    ALX[1]:=8     ;
+    ALX[1]:=8  {45};    {8;}
     ALY[1]:=19;
     ALZ[1]:=0;
 
@@ -434,8 +434,11 @@ begin
     begin
       AAA[i]:=AAA[i]*nasob;
       BBB[i]:=BBB[i]*nasob;
+      BB1[i]:=BBB[i];
       CCC[i]:=CCC[i]*nasob;
-      DDD[i]:=DDD[i]*nasob;
+      CC1[i]:=CCC[i];
+      CC2[i]:=0;
+      DDD[i]:=0; {DDD[i]*nasob; }
       XXX[i]:=Xcoor-XXX[i]*nasob;
       YYY[i]:=Ycoor-YYY[i]*nasob;
       ZZZ[i]:=Zcoor-ZZZ[i]*nasob;
@@ -443,7 +446,7 @@ begin
     For i:=1 to 24 do
        begin
        ZZY[i]:=ZZZ[i];        // zuradnica z v projekcii yz zatial rovnaka ako suradnica z v projekcii xz
-       ZUZ[i]:=0.03*BBB[i];  // zuzenie stavca 2.5% z rozmeru BBB
+       ZUZ[i]:=0.035*BBB[i];  // zuzenie stavca 2.5% z rozmeru BBB
        end;
 
     // Vytvor selectbox a nastav ho na prvy element
@@ -457,7 +460,7 @@ begin
   Form1.Edit1.Text:='1';
   Form1.Edit2.Text:='1';
   Form1.ZadavatC.Enabled:=true;
-  Form1.ZadavatB.Enabled:=true;
+  Form1.ZadavatB.Enabled:=false;
   Form1.ZadavatDelta1.Enabled:=true;
   Form1.ZadavatA.Enabled:=true;
   Form1.PopisPraceMatrix.Text:='';

@@ -8,6 +8,11 @@ uses
 
 const Setts : String = 'config.ini';
 
+type Rpoint=record
+   x:single;
+   y:single;
+   end;
+
 type
   TfMain = class(TForm)
     bLoad: TButton;
@@ -37,6 +42,8 @@ type
     Clear: TButton;
     LenBocnaProjekcia: TCheckBox;
     LenPredozadnaProjekcia: TCheckBox;
+    NodeNumbers: TCheckBox;
+    Testovanie: TButton;
     procedure bCloseClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure bLoadClick(Sender: TObject);
@@ -71,6 +78,7 @@ type
     procedure Vstup_a_Click(Sender: TObject);
     procedure Vstup_b_Click(Sender: TObject);
     procedure Vstup_c_Click(Sender: TObject);
+    procedure Vstup_BB_Click(Sender: TObject);
     procedure ZuzenieClick(Sender: TObject);
     procedure FromEditChange(Sender: TObject);
     procedure ToEditChange(Sender: TObject);
@@ -80,6 +88,12 @@ type
     procedure LenBocnaProjekciaClick(Sender: TObject);
     procedure LenPredozadnaProjekciaClick(Sender: TObject);
     procedure LenBocnaClick(Sender: TObject);
+    procedure TestovanieClick(Sender: TObject);
+
+    {Function Transform(P:Rpoint; alfa:real):Rpoint;
+    Function Ip(P:Rpoint):Tpoint;
+    Function Rp(P:Tpoint):Rpoint;
+    Function Ralfa(P1,P2:Tpoint):real;}
 
   private
     { Private declarations }
@@ -90,16 +104,18 @@ type
   end;
 
 var
-  fMain                     : TfMain;
-  Bmp                       : TBitmap;
-  P1,P2                     : TPoint;
-  floatPx, floatReal        : Extended;
-  AppStatus                 : String;
-  StlacenyButtonLeft        : boolean;
-  Xorigin,Yorigin,Zorigin   : single;
-  HodnotaVstupu             : extended;
-  VratitVstup               : boolean;
-  FarbaDefinovanehoRozmeru  : integer;
+  fMain                         : TfMain;
+  Bmp                           : TBitmap;
+  P1,P2,P2pred,P1pred           : TPoint;
+  P10,P20,P30,P40               : RPoint;
+  AlfaPred,DeltaX,DeltaZ        : real;
+  floatPx, floatReal            : Extended;
+  AppStatus                     : String;
+  StlacenyButtonLeft            : boolean;
+  Xorigin,Yorigin,Zorigin       : single;
+  HodnotaVstupu                 : extended;
+  VratitVstup                   : boolean;
+  FarbaDefinovanehoRozmeru      : integer;
 
 
 
@@ -108,6 +124,59 @@ implementation
 uses ruler,stavce,Matrix;
 
 {$R *.dfm}
+
+Function Transform(P:Rpoint; alfa:real; P0:Rpoint):Rpoint;
+var H:Rpoint;
+begin
+   P.x:=P.x-P0.x;
+   P.y:=P.y-P0.y;
+   H:=P;
+   P.x:= H.x*cos(alfa)-H.y*sin(alfa);
+   P.y:= H.x*sin(alfa)+H.y*cos(alfa);
+   Transform:=P;
+end;    //Transform
+
+{Function Ip(P:Rpoint):Tpoint;
+begin
+   Ip.x:=Round(P.x);
+   Ip.y:=Round(P.y);
+end;   //Ip
+}
+
+Function Rp(P:Tpoint):Rpoint;
+begin
+   Rp.x:=P.x;
+   Rp.y:=P.y;
+end;   //Rp
+
+
+
+Function Ralfa(P1,P2:Tpoint):real;
+var  dX,dY,uhol  :real;
+begin
+   dX:=P2.X-P1.X;
+   dY:=-(P2.Y-P1.Y);               //dY:=P2.Y-P1.Y;
+   if dx=0 then
+           begin
+             if dY>=0 then uhol:=pi/2
+                      else uhol:=3*pi/2;
+           end
+   else
+           begin
+           uhol:=ArcTan(abs(dY)/abs(dX));
+             if dX>=0 then
+                  begin
+                   if dY>=0 then uhol:=uhol
+                            else uhol:=2*pi-uhol;
+                  end
+             else begin
+                   if dY>=0 then uhol:=pi-uhol
+                            else uhol:=pi+uhol;
+                  end;
+           end;
+   Ralfa:=uhol;
+end; //Ralfa
+
 
 { TForm1 }
 
@@ -151,6 +220,7 @@ end;
 procedure TfMain.SpineModelClick(Sender: TObject);
 begin
   fMain.Img.Repaint;
+  fMain.TestovanieClick(Sender); //  ?????????????????
   fmain.KresliVsetko(KreslitOdStavca,KreslitPoStavec);
 end;
 
@@ -164,7 +234,7 @@ Procedure Tfmain.KresliVsetko(OdStavca,PoStavec:integer);
 var MierkaXZ,MierkaYZ      :single;
     Farba                  :longint;
 begin
-  UzlyStavca(17);
+  UzlyStavca(AktualneDefinovanyStavec);
   MierkaXZ :=1 {1000*floatPx / floatReal};
   Farba:=clRed;
   fMain.lplotXZ(OdStavca,PoStavec,MierkaXZ, Farba);
@@ -220,7 +290,7 @@ PopisPrace.Enabled:=false;
 
 LenBocnaProjekcia.Checked:=false;
     Vstup_c_.Enabled:=true;
-    Vstup_b_.Enabled:=true;
+    Vstup_b_.Enabled:=false;
     Zuzenie.Enabled:=true;
 
 LenPredozadnaProjekcia.Checked:=false;
@@ -236,10 +306,6 @@ FarbaDefinovanehoRozmeru:=clBlue;
 Immediate_action.Checked:=true;
 Spine_preview.Checked:=true;
 
-P1.X := 0;
-P1.Y := 0;
-P2.X := 0;
-P2.Y := 0;
 
 floatPx := 10;
 floatReal := 1;
@@ -249,7 +315,14 @@ LoadConfig;
 AppStatus := 'Loaded';
 Nini(MaxPocetUzlov);   // inicializacia poli suradnic uzlov stavcov
 
-end;
+
+P1.X := 0;
+P1.Y := 0;
+P2.X := 0;
+P2.Y := 0;
+
+
+end;   //TfMain.FormCreate
 
 procedure TfMain.FormDestroy(Sender: TObject);
 begin
@@ -296,6 +369,46 @@ f.WriteString('App','fitReal', fitReal.Text);
 f.Free;
 end;
 
+procedure TfMain.TestovanieClick(Sender: TObject);
+var P1:Tpoint;
+var  o1:string;
+begin
+// prikazy pre testovanie
+ fMain.Img.Canvas.Pen.Width:=4;
+ P1.x:=600;
+ P1.y:=600;
+ fMain.Img.Canvas.MoveTo(P1.x,P1.y);
+ fMain.Img.Canvas.LineTo(P1.x,P1.y);
+ o1:='P10 [600,600]';
+ fMain.Img.Canvas.TextOut(P1.x+3,P1.y+3,o1);
+
+ P1.x:=600;
+ P1.y:=100;
+ fMain.Img.Canvas.MoveTo(P1.x,P1.y);
+ fMain.Img.Canvas.LineTo(P1.x,P1.y);
+ o1:='P20 [600,100]';
+ fMain.Img.Canvas.TextOut(P1.x+3,P1.y+3,o1);
+
+ P1.x:=200;
+ P1.y:=100;
+ fMain.Img.Canvas.MoveTo(P1.x,P1.y);
+ fMain.Img.Canvas.LineTo(P1.x,P1.y);
+ o1:='P30 [200,100]';
+ fMain.Img.Canvas.TextOut(P1.x+3,P1.y+3,o1);
+
+
+ P1.x:=100;
+ P1.y:=600;
+ fMain.Img.Canvas.MoveTo(P1.x,P1.y);
+ fMain.Img.Canvas.LineTo(P1.x,P1.y);
+ o1:='P40 [100,600]';
+ fMain.Img.Canvas.TextOut(P1.x+3,P1.y+3,o1);
+
+
+ // prikazy pre testovanie
+
+end;
+
 procedure TfMain.ToEditChange(Sender: TObject);
 begin
   KreslitPoStavec := StrToInt(ToEdit.Text);
@@ -317,6 +430,14 @@ begin
   FarbaDefinovanehoRozmeru:=clYellow;
 end;
 
+procedure TfMain.Vstup_BB_Click(Sender: TObject);
+begin
+  PopisPrace.Text:='B'+IntToStr(AktualneDefinovanyStavec);
+  Form1.PopisPraceMatrix.Text:=fMain.PopisPrace.Text;
+  NazovVstupu:='B';
+  FarbaDefinovanehoRozmeru:=clRed;
+end;
+
 procedure TfMain.Vstup_c_Click(Sender: TObject);
 begin
   PopisPrace.Text:='c'+IntToStr(AktualneDefinovanyStavec);
@@ -334,12 +455,13 @@ begin
 end;
 
 
+
 procedure TfMain.LenPredozadnaProjekciaClick(Sender: TObject);
 var PB:boolean;
 begin
    PB:=LenPredozadnaProjekcia.Checked;
    Vstup_c_.Enabled:=   not  PB;
-   Vstup_b_.Enabled:=   not  PB;
+   {Vstup_b_.Enabled:=   not  PB;}
    Zuzenie.Enabled:=    not  PB;
 
    Form1.ZadavatC.Enabled:=        not  PB;
@@ -384,6 +506,8 @@ begin
   PopisPrace.Text:='';
   Form1.PopisPraceMatrix.Text:=fMain.PopisPrace.Text;
   fMain.Img.Repaint;
+  fMain.TestovanieClick(Sender); //  ?????????????????
+
 end;
 
 procedure TfMain.IMGCSlateral(Sender: TObject);
@@ -407,10 +531,18 @@ procedure TfMain.ImgMouseDown(Sender: TObject; Button: TMouseButton;
 begin
  if Button= mbLeft then
   begin
-  if not StlacenyButtonLeft then
+  if not StlacenyButtonLeft then   // zaznamena suradnice P1 tesne po stlaceni mbLeft
     begin
-    P1.X := X;
-    P1.Y := Y;
+    if (NazovVstupu='b') or (NazovVstupu='B') then
+      begin
+      P1.X := P2pred.X;
+      P1.Y := P2pred.Y;
+      end
+    else
+      begin
+      P1.X := X;
+      P1.Y := Y;
+      end;
     end;
   StlacenyButtonLeft:=true;
   ChangeRuler;
@@ -430,6 +562,8 @@ begin
 if StlacenyButtonLeft then
   begin
   fMain.Img.Repaint;
+  fMain.TestovanieClick(Sender); //  ?????????????????
+
   P2.X := X;
   P2.Y := Y;
   PomocFarba:=fMain.Img.Canvas.Pen.Color;  // prave aktualna farba
@@ -448,11 +582,13 @@ if StlacenyButtonLeft then
          if Spine_preview.checked then
            begin
            fMain.Img.Repaint;
+           fMain.TestovanieClick(Sender); //  ?????????????????
            KresliVsetko(1,AktualneDefinovanyStavec);
            end
          else
            begin
            fMain.Img.Repaint;
+           fMain.TestovanieClick(Sender); //  ?????????????????
            KresliVsetko(AktualneDefinovanyStavec,AktualneDefinovanyStavec);
            end;
        end;
@@ -475,12 +611,10 @@ begin
  StlacenyButtonLeft:=false;
  if Button= mbLeft then
   begin
-//  StlacenyButtonLeft:=false;
-//  fMain.Img.Repaint;
   P2.X := X;
   P2.Y := Y;
   fMain.Img.Canvas.Pen.Color:=FarbaDefinovanehoRozmeru {clBlue};
-  fMain.Img.Canvas.Pen.Width:=3;
+  fMain.Img.Canvas.Pen.Width:=1;
   if (p1.x<>p2.X) and (p1.Y <> p2.y) then
      begin
      fMain.Img.Canvas.MoveTo(P1.X,P1.Y);
@@ -491,6 +625,24 @@ begin
 
   if Button= mbRight then  //
   begin
+  if NazovVstupu='c' then
+    begin
+    P1pred:=P1;
+    P2pred:=P2;  // pripravit poslednu poziciu pre dalsie zadavanie
+    AlfaPred:=Ralfa(P1,P2);
+    P10:=Transform(Rp(P1),AlfaPred,Rp(P1pred));
+    P20:=Transform(Rp(P2),AlfaPred,Rp(P1pred));
+    end;
+  if NazovVstupu='b' then
+    begin
+    P2pred:=P2;  // pripravit poslednu poziciu pre dalsie zadavanie
+    P30:=Transform(Rp(P2),AlfaPred,Rp(P1pred));
+    end;
+  if NazovVstupu='B' then
+    begin
+    P2pred:=P2;  // pripravit poslednu poziciu pre dalsie zadavanie
+    P40:=Transform(Rp(P2),AlfaPred,Rp(P1pred));
+    end;
   if NazovVstupu<>'' then   // ak je zadany nazov veliciny (rozmeru c,b,a,d) ktora sa zadava
     begin
      if LenBocnaProjekcia.Checked then
@@ -559,10 +711,17 @@ else
      else
        if Nazov[1]='b' then
           begin
-          Nazov:='d';
+          Nazov:='B';
           DalsiVstup:=Nazov[1];
-          fMain.ZuzenieClick(Sender);
+          fMain.Vstup_BB_Click(Sender);
           end
+      else
+        if Nazov[1]='B' then
+           begin
+           Nazov:='d';
+           DalsiVstup:=Nazov[1];
+           fMain.ZuzenieClick(Sender);
+           end
        else
          if Nazov[1]='d' then
             begin
@@ -594,10 +753,17 @@ begin
      else
        if Nazov[1]='b' then
           begin
-          Nazov:='d';
+          Nazov:='B';
           DalsiVstupCBD:=Nazov[1];
-          fMain.ZuzenieClick(Sender);
+          fMain.Vstup_BB_Click(Sender);
           end
+      else
+        if Nazov[1]='B' then
+           begin
+           Nazov:='d';
+           DalsiVstupCBD:=Nazov[1];
+           fMain.ZuzenieClick(Sender);
+           end
        else
           DalsiVstupCBD:=' ';
 end;
@@ -620,25 +786,9 @@ begin
     meanX:=(P2.X+P1.X)/2;
     meanY:=(P2.Y+P1.Y)/2;
     dlzka:=sqrt(sqr(dX)+sqr(dY));
-   if dx=0 then
-           begin
-             if dY>=0 then uhol:=pi/2
-                      else uhol:=3*pi/2;
-           end
-    else
-           begin
-           uhol:=ArcTan(abs(dY)/abs(dX));
-             if dX>=0 then
-                  begin
-                   if dY>=0 then uhol:=uhol
-                            else uhol:=2*pi-uhol;
-                  end
-             else begin
-                   if dY>=0 then uhol:=pi-uhol
-                            else uhol:=pi+uhol;
-                  end;
-           end;
-    uhol:=180-180/pi*uhol;     // zmena smeru osi x
+
+    uhol:=Ralfa(P1,P2);
+    uhol:=180-180/pi*uhol;     // minus kvoli zmene smeru osi y
 
     case NazovVstupu[1] of
     'a':begin
@@ -652,8 +802,18 @@ begin
          ZZY[AktualneDefinovanyStavec]:= MeanY;
         end;
     'b':begin
+        P30:=Transform(Rp(P2),AlfaPred,Rp(P1pred));
+        dlzka:=-(P30.Y-P20.Y);
+        DeltaZ:=-(P30.X-P20.X);
         Form1.bbbField.Text:=FloatToStrF(dlzka,ffFixed,5,3);
-         BBB[AktualneDefinovanyStavec]:= dlzka;
+        BBB[AktualneDefinovanyStavec]:= dlzka;
+        CC2[AktualneDefinovanyStavec]:= DeltaZ;
+        end;
+    'B':begin
+        P40:=Transform(Rp(P2),AlfaPred,Rp(P1pred));
+        dlzka:=-(P40.X-P30.X);
+        CC1[AktualneDefinovanyStavec]:= dlzka;
+        BB1[AktualneDefinovanyStavec]:= -P40.Y;
         end;
     'c':begin
         Form1.cccField.Text:=FloatToStrF(dlzka,ffFixed,5,3);
@@ -677,32 +837,46 @@ end;  //TfMain.VratitVstupy
 Procedure BodXZ(Uzol:longint; Mierka:single; Farba, Hrubka:longint);
 var
      x,y     :integer;
+     o1      :string;
 begin
  fMain.Img.Canvas.Pen.Color:=Farba;
  fMain.Img.Canvas.Pen.Width:=Hrubka;
  x:=Round(NX[Uzol]*Mierka);
  y:=Round(NZ[Uzol]*Mierka);
-
  fMain.Img.Canvas.MoveTo(x,y);
  fMain.Img.Canvas.LineTo(x,y);
- end;
+ if  fmain.NodeNumbers.checked then
+   begin
+   o1:=IntToStr(Uzol);
+   fMain.Img.Canvas.TextOut(x+1,y+1,o1);
+   end;
+ fMain.Img.Canvas.MoveTo(x,y);
+end;
 
 Procedure CiaraXZ(Uzol:longint; Mierka:single; Farba, Hrubka:longint);
 var
      x,y     :integer;
+     o1      :string;
 begin
  fMain.Img.Canvas.Pen.Color:=Farba;
  fMain.Img.Canvas.Pen.Width:=Hrubka;
  x:=Round(NX[Uzol]*Mierka);
  y:=Round(NZ[Uzol]*Mierka);
  fMain.Img.Canvas.LineTo(x,y);
- end;
+ if  fmain.NodeNumbers.checked then
+   begin
+   o1:=IntToStr(Uzol);
+   fMain.Img.Canvas.TextOut(x+1,y+1,o1);
+   end;
+ fMain.Img.Canvas.MoveTo(x,y);
+end;
 
 
 
 Procedure BodYZ(Uzol:longint; Mierka:single; Farba, Hrubka:longint);
 var
      x,y     :integer;
+     o1      :string;
 begin
  fMain.Img.Canvas.Pen.Color:=Farba;
  fMain.Img.Canvas.Pen.Width:=Hrubka;
@@ -710,17 +884,30 @@ begin
  y:=Round(NZ[Uzol]*Mierka)+Round((ZZY[AktualneDefinovanyStavec]-ZZZ[AktualneDefinovanyStavec])*Mierka);
  fMain.Img.Canvas.MoveTo(x,y);
  fMain.Img.Canvas.LineTo(x,y);
+ if  fmain.NodeNumbers.checked then
+   begin
+   o1:=IntToStr(Uzol);
+   fMain.Img.Canvas.TextOut(x+1,y+1,o1);
+   end;
+ fMain.Img.Canvas.MoveTo(x,y);
  end;
 
 Procedure CiaraYZ(Uzol:longint; Mierka:single; Farba, Hrubka:longint);
 var
      x,y     :integer;
+     o1      :string;
 begin
  fMain.Img.Canvas.Pen.Color:=Farba;
  fMain.Img.Canvas.Pen.Width:=Hrubka;
  x:=Round(NY[Uzol]*Mierka);
  y:=Round(NZ[Uzol]*Mierka)+Round((ZZY[AktualneDefinovanyStavec]-ZZZ[AktualneDefinovanyStavec])*Mierka);
  fMain.Img.Canvas.LineTo(x,y);
+ if  fmain.NodeNumbers.checked then
+   begin
+   o1:=IntToStr(Uzol);
+   fMain.Img.Canvas.TextOut(x+1,y+1,o1);
+   end;
+ fMain.Img.Canvas.MoveTo(x,y);
  end;
 
 Procedure KresliBodyStavcaProjekciaXZ(Stavec:longint; Mierka:single; Farba, Hrubka:longint);
@@ -750,6 +937,7 @@ begin
    CiaraXZ(ZC+ 40,Mierka,Farba,Hrubka);
    for j:= 54 to 63 do   CiaraXZ(ZC+ j,Mierka,Farba,Hrubka);
    Hrubka:=2;
+{   BodXZ  (ZC+ 63,Mierka,Farba,Hrubka);}
    for j:= 64 to 72 do   CiaraXZ(ZC+ j,Mierka,Farba,Hrubka);
    CiaraXZ(ZC+ 47,Mierka,Farba,Hrubka);
    CiaraXZ(ZC+ 35,Mierka,Farba,Hrubka);
@@ -795,6 +983,7 @@ var j, Hrubka   :longint;
     for k := 1 to 9 do CiaraXZ(C+300*(k-1),Mierka,Farba,Hrubka);
     end;
 begin
+
    Hrubka:=1;
    Linia(ZC+  1);
    Linia(ZC+  3);
@@ -815,6 +1004,10 @@ begin
    Linia(ZC+ 11);
    Linia(ZC+  6);
    Linia(ZC+  1);
+{
+   Hrubka:=2;
+   Linia(ZC+ 63);
+}
 end; //KresliZvisleLinieStavcaProjekciaXZ
 
 Procedure KresliZvisleLinieStavcaProjekciaYZ(ZC:longint; Mierka:single; Farba:longint);

@@ -1,0 +1,60 @@
+! macro na zuzenie stavca
+! arg1-vyska stavca -miesny kanal -  medzi bodmi 7201 a 9601
+! arg2-vyska stavca -brusna dutina -  medzi bodmi 7263 a 9663
+! musi byt zadefinovane IZ-spodna uroven cislovania stavca 7200, 13200, 19200
+! predpoklad 8 rezov stavca s rozdielom cislovania 300 pocinajuc IZ
+
+!
+nsel,s,NODE,,IZ,IZ+299		!vyselektujeme cisla podstavy stavca
+
+POMDIM=POMDIM+1			!prvy krat treba dimenzovat pole POD
+*if,POMDIM,LE,1,then
+   *dim,pod,,9999
+*ENDIF
+
+! zapis cisiel vyselektovanych uzlov do vektora pod()
+*get,zac,node,,num,min                  ! zac = cislo prveho uzla
+*get,kon,node,,num,max                  ! kon = cislo posledneho uzla
+*get,pocet,node,,count                  ! pocet = pocet uzlov v urovni ZD2
+
+
+cislo=zac
+citac=0
+*if,pocet,le,0,then
+*else
+ *do,I,1,pocet
+   citac=citac+1
+   pod(citac)=cislo-IZ			! chceme len zakladne cisla, cisla bez cisla vrstvy, preto minus IZ
+   *get,cislo,node,cislo,nxth
+ *enddo
+*endif
+
+baseX=NX(IZ+63)-NX(IZ+1)
+pdz=(arg2-arg1)/2
+
+
+
+*DO,IIZ,IZ+1200,IZ+2400,300	 !8400 az 9600 s krokom 300   ! uprava suradnic vyselektovanych uzlov (zuzenie stavca-horna polovicka)
+  *DO,II,1,POCET
+    NU=POD(II)                                                ! Cislo noveho uzla
+    pdX=NX(IZ+1200+NU)-NX(IZ+1200+1)
+    pd=pdz*(pdx/baseX)
+    pdreal=pd*(IIZ   -(IZ+1200))/1200                         !  Chyba bola v tomto riadku  !!!!!! povodne: pdreal=pd*(IIZ -IZ+1200)/1200
+    N,IIZ+NU,NX(IIZ+NU),NY(IIZ+NU),NZ(IIZ+NU)+ pdreal
+  *ENDDO
+*ENDDO   !koniec cyklu IIZ
+
+
+*DO,IIZ,IZ,IZ+1200,300	        !7200 az 8400 s krokom 300   ! uprava suradnic vyselektovanych uzlov (zuzenie stavca-spodna polovicka)
+  *DO,II,1,POCET
+    NU=POD(II)                                              ! Cislo noveho uzla
+    pdX=NX(IZ+1200+NU)-NX(IZ+1200+1)
+    pd=pdz*(pdx/baseX)
+    pdreal=pd*(IZ+1200    -    IIZ)/1200
+    N,IIZ+NU,NX(IIZ+NU),NY(IIZ+NU),NZ(IIZ+NU)-pdreal
+  *ENDDO
+*ENDDO   !koniec cyklu IIZ
+
+
+!
+!

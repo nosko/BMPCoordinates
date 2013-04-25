@@ -7,9 +7,21 @@ interface
 
 
 const MaxPocetStavcov=24;
+const MaxRovnic=3;
+
 const MaxPocetUzlov=10000+MaxPocetStavcov*6000;
 type MalePole=array[1..MaxPocetStavcov] of single;
+type Apole=array[1..MaxRovnic,1..MaxRovnic] of real;
+type Xpole=array[1..MaxRovnic] of real;
 
+Procedure Uzly0(var POCETPRVKOV:longint; ZAKCIS:longint);  // ZakladneBody
+Procedure Uzly1(var POCETPRVKOV:longint; ZAKCIS:longint);
+{Procedure UzlyNic(var POCETPRVKOV:longint; ZAKCIS:longint);}
+procedure RiesRovn(N:integer;  A:Apole;  P:Xpole;  var X:Xpole);
+
+Procedure ZUZSTZ(z1,z2:real);
+Procedure ZUZSTX(arg1,arg2:real);
+Procedure SKOSSTZ(pdz:real);
 Procedure UzlyStavca(PocetStavcov:longint);
 Procedure Nini(MaxPocet:longint);
 Procedure NINC(NovyUzol,N1,N2:longint; PercVzd:double);
@@ -19,12 +31,14 @@ Function Cosd(Degree:double):double;
 Function TANd(Degree:double):double;
 Procedure ngeN(KolkoKrat,PosunCis ,iOD,iDO,Krok:longint; delX, delY, delZ:single);
 Procedure Stavsel1(PERCEN:single; ZAKCIS:longint);
-Procedure S_stavn03;
+Procedure S_stavn03(stavec:longint);
 
 var
-PocetStavcov, POMDIM, POSUNC,CSS,IZ                             : longint;
-XSUR,YSUR,ZSUR,XROT,YROT,ZROT,PERC,PERC1,a,b,c,dd,uhol,ZI       : single;
+PocetStavcov, POMDIM, POSUNC,CSS,IZ,IZnic                       : longint;
+XSUR,YSUR,{ZSUR,}XROT,YROT,ZROT,PERC,PERC1,a,b,c,dd,uhol,ZI       : single;
 ZZ{,AAA,BBB,CCC,DDD,XXX,YYY,ZZZ,ALX,ALY,ALZ}                    : MalePole;
+Pod                                                        :array[1..10000] of longint;
+
 {
 *dim,ZZ,,12              ! Pomocne pole Z suradnic hladin stavca a platnicky
 *dim,AAA,,32             ! Pomocne pole rozmerov stavca
@@ -45,6 +59,176 @@ ZZ{,AAA,BBB,CCC,DDD,XXX,YYY,ZZZ,ALX,ALY,ALZ}                    : MalePole;
 implementation
 
 uses Matrix;
+
+(*
+Procedure ZUZSTZ(z1,z2:real);
+var i,II,IIZ,NU,zac,kon,pocet,citac   :longint;
+    baseX,pdx,pdz,pd,pdreal,zIIZ      :real;
+//! macro na zuzenie stavca
+//! z1-vyska stavca -miesny kanal -  medzi bodmi 7201 a 9601
+//! z2-vyska stavca -brusna dutina -  medzi bodmi 7263 a 9663
+//! musi byt zadefinovane IZ-spodna uroven cislovania stavca 7200, 13200, 19200
+//! predpoklad 8 rezov stavca s rozdielom cislovania 300 pocinajuc IZ
+begin
+Uzly0(pocet, 0);  //nsel,s,NODE,,IZ,IZ+299		!vyselektujeme cisla podstavy stavca
+                   //! zapis cisiel vyselektovanych uzlov do vektora pod()
+{pdz:=(z2-z1); }
+for II := 1 to pocet do
+NU:=POD[II];                                            //! Cislo noveho uzla
+BEGIN
+ for i :=1  to 9 do
+   begin
+     IIZ:=IZ+(i-1)*300;
+     baseX:=NX[IIZ+63]-NX[IIZ+1];   if baseX=0 then Exit;
+     pdX:=NX[IIZ+NU]-NX[IIZ+1];
+     pd:=(z2-z1)*(pdx/baseX);
+      pdreal:= pd*(IIZ   -IZ)/2400;
+     N(IIZ+NU,NX[IIZ+NU],NY[IIZ+NU],NZ[IIZ+NU]+ pdreal);
+   end;  //!koniec cyklu IIZ
+END;
+end;
+*)
+
+
+Procedure ZUZSTZ(z1,z2:real);
+var i,II,IIZ,NU,zac,kon,pocet,citac         :longint;
+    baseX,pdx,pdz,pd,Zreal,zIIZ,baseZ      :real;
+//! macro na zuzenie stavca
+//! z1-vyska stavca -miesny kanal -  medzi bodmi 7201 a 9601
+//! z2-vyska stavca -brusna dutina -  medzi bodmi 7263 a 9663
+//! musi byt zadefinovane IZ-spodna uroven cislovania stavca 7200, 13200, 19200
+//! predpoklad 8 rezov stavca s rozdielom cislovania 300 pocinajuc IZ
+begin
+Uzly0(pocet, 0);  //nsel,s,NODE,,IZ,IZ+299		!vyselektujeme cisla podstavy stavca
+                   //! zapis cisiel vyselektovanych uzlov do vektora pod()
+baseZ:=z1;
+ for i :=1  to 9 do
+   begin
+     IIZ:=IZ+(i-1)*300;
+     pdz:=  NZ[IIZ+1]-NZ[IZ+1];
+     NZ[IIZ+63]:=NZ[IZ+63]    +     z2*(pdz/z1);
+   end;  //!koniec cyklu IIZ
+
+for II := 1 to pocet do
+BEGIN
+NU:=POD[II];                                            //! Cislo noveho uzla
+ for i :=1  to 9 do
+   begin
+     IIZ:=IZ+(i-1)*300;
+     pdx:=  NX[IIZ+NU]-NX[IIZ+1];
+     baseX:=NX[IIZ+63]-NX[IIZ+1];
+     if baseX=0 then baseX:=1;
+     Zreal:=NZ[IIZ+1]    +       (NZ[IIZ+63]-NZ[IIZ+1])*pdx/baseX;
+     N(IIZ+NU,NX[IIZ+NU],NY[IIZ+NU], +Zreal);
+   end;  //!koniec cyklu IIZ
+END;
+end;  // ZUZSTZ
+
+
+(*
+Procedure ZUZSTX(arg1,arg2:real);
+var i,II,IIZ,NU,zac,kon,pocet,citac   :longint;
+    baseX,delX,pdx,pd,Xreal           :real;
+//! macro na zuzenie stavca
+//! arg1-BBB
+//! arg2-BB1
+//! musi byt zadefinovane IZ-spodna uroven cislovania stavca 7200, 13200, 19200
+//! predpoklad 8 rezov stavca s rozdielom cislovania 300 pocinajuc IZ
+begin
+Uzly0(pocet, 0);  //nsel,s,NODE,,IZIZ+299		!vyselektujeme cisla podstavy stavca
+                   //! zapis cisiel vyselektovanych uzlov do vektora pod()
+ for II := 1 to pocet do
+BEGIN
+NU:=POD[II];                                            //! Cislo noveho uzla
+ for i :=1  to 9 do
+   begin
+     IIZ:=IZ+(i-1)*300;
+     pdx:=  NX[IIZ+NU]-NX[IIZ+1];
+     baseX:=NX[IIZ+63]-NX[IIZ+1];
+     Xreal:=NX[IIZ+1] +pdx/baseX*(arg1+ (arg2-arg1)*(IIZ-IZ)/2400);
+     N(IIZ+NU,Xreal ,NY[IIZ+NU], NZ[IIZ+NU]);
+   end;  //!koniec cyklu IIZ
+END;
+end;  // ZUZSTX
+*)
+
+Procedure ZUZSTX(arg1,arg2:real);
+var i,II,IIZ,NU,zac,kon,pocet,citac   :longint;
+    baseX,baseZ,delX,delZ,pdx,pd,pdreal           :real;
+//! macro na zuzenie stavca
+//! arg1-BBB
+//! arg2-BB1
+//! musi byt zadefinovane IZ-spodna uroven cislovania stavca 7200, 13200, 19200
+//! predpoklad 8 rezov stavca s rozdielom cislovania 300 pocinajuc IZ
+begin
+Uzly0(pocet, 0);  //nsel,s,NODE,,IZIZ+299		!vyselektujeme cisla podstavy stavca
+                   //! zapis cisiel vyselektovanych uzlov do vektora pod()
+{UzlyNic(pocet, 0);}
+
+delX:=(arg2-arg1);
+baseZ:=NZ[IZ+63+2400]-NZ[IZ+63];
+if baseZ=0 then
+   baseZ:=1;
+for i :=1  to 9 do
+   begin
+   IIZ:=IZ+(i-1)*300;
+   baseX:=NX[IIZ+63]-NX[IIZ+1];
+   if baseX=0 then
+       baseX:=1;
+   for II := 1 to pocet do
+     BEGIN
+     NU:=POD[II];                                            //! Cislo noveho uzla
+     pdx:=NX[IIZ+NU]-NX[IIZ+1];
+     delZ:=-(NZ[IZ+63]-NZ[IIZ+NU]);
+     pd:= delX*delZ/baseZ;
+     pdreal:= pd*(pdx/baseX);
+     N(IIZ+NU,NX[IIZ+NU]+pdreal,NY[IIZ+NU],NZ[IIZ+NU]);
+     END;
+   end;  //!koniec cyklu IIZ
+
+{for i :=2  to 8 do
+   begin
+   IIZ:=IZ+(i-1)*300;
+   baseX:=NX[IIZ+63]-NX[IIZ+1];
+   if baseX=0 then                Exit;
+   for II := 1 to pocet do
+     BEGIN
+     NU:=POD[II];                                            //! Cislo noveho uzla
+     N(IIZ+NU,
+        NX[IZ+NU]+(NX[IZ+2400+NU]-NX[IZ+NU])*(IIZ-IZ)/2400
+        ,NY[IIZ+NU],NZ[IIZ+NU]);
+     END;
+   end;  //!koniec cyklu IIZ
+}
+
+end;  // ZUZSTX
+
+
+Procedure SKOSSTZ(pdz:real);
+var i,II,IIZ,NU,zac,kon,pocet,citac   :longint;
+    baseX,pdx,pd                      :real;
+//! macro na skosenie stavca
+//! pdz rozmer o ktory treba skosit v smere z
+//! musi byt zadefinovane IZ-spodna uroven cislovania stavca 7200, 13200, 19200
+//! predpoklad 8 rezov stavca s rozdielom cislovania 300 pocinajuc IZ
+begin
+Uzly0(pocet,0);  //nsel,s,NODE,,IZ,IZ+299		!vyselektujeme cisla podstavy stavca
+                   //! zapis cisiel vyselektovanych uzlov do vektora pod()
+baseX:=NX[IZ+63]-NX[IZ+1];
+if baseX=0 then baseX:=1;
+for I :=1  to 9 do
+   begin
+   IIZ:=IZ  +(i-1)*300;
+   for II := 1 to pocet do
+     BEGIN
+     NU:=POD[II];                                            //! Cislo noveho uzla
+     pdX:=NX[IZ+NU]-NX[IZ+1];
+     pd:=pdz*(pdx/baseX);
+     N(IIZ+NU,NX[IIZ+NU],NY[IIZ+NU],NZ[IIZ+NU]+ pd);
+     END;
+   end;  //!koniec cyklu IIZ
+end;  // SKOSSTZ
+
 
 
 Procedure Nini(MaxPocet:longint);
@@ -126,9 +310,9 @@ begin
 end;
 
 
-Procedure NRX(arg1:longint; arg2:single; arg3:longint);
-var gama, x0,y0,z0               :single;
-    l1, m1,n1,l2,m2,n2,l3,m3,n3  :single;
+Procedure NRX(arg1:longint; arg2:extended; arg3:longint);
+var gama, x0,y0,z0               :extended;
+    l1, m1,n1,l2,m2,n2,l3,m3,n3  :extended;
 begin
 {
 !    Makro zmeni suradnice UZLOV
@@ -155,9 +339,9 @@ if arg3=0 then  N(arg1,x0,y0,z0)
 end; //NRX
 
 
-Procedure NRY(arg1:longint; arg2:single; arg3:longint);
-var gama, x0,y0,z0               :single;
-    l1, m1,n1,l2,m2,n2,l3,m3,n3  :single;
+Procedure NRY(arg1:longint; arg2:extended; arg3:longint);
+var gama, x0,y0,z0               :extended;
+    l1, m1,n1,l2,m2,n2,l3,m3,n3  :extended;
 begin
 {
 !    Makro zmeni suradnice UZLOV
@@ -182,9 +366,9 @@ if arg3=0 then  N(arg1,x0,y0,z0)
           else  N(arg3,x0,y0,z0);
 end; //NRY
 
-Procedure NRZ(arg1:longint; arg2:single; arg3:longint);
-var gama, x0,y0,z0               :single;
-    l1, m1,n1,l2,m2,n2,l3,m3,n3  :single;
+Procedure NRZ(arg1:longint; arg2:extended; arg3:longint);
+var gama, x0,y0,z0               :extended;
+    l1, m1,n1,l2,m2,n2,l3,m3,n3  :extended;
 begin
 {
 !    Makro zmeni suradnice UZLOV
@@ -299,47 +483,49 @@ var  RR,XS,YS,ALF   :double;
      IP,II          :longint;
 begin
 IZ:=3600+CSS-POSUNC;  // Spodna podstava stavca cisla uzlov;
-ZI:=ZSUR-(c/2+dd);    // Suradnica v smere osi z;
+ZI:={ZSUR}-(c/2+dd);    // Suradnica v smere osi z;
                       // Nacitanie uzlov stavca v jednej rovine z, parametre a,b,c,IZ,ZI;
-N(     1+IZ,  0    ,0     ,ZI);                  // pociatok
-N(     2+IZ,  b/4  ,0     ,ZI);                  // stred polkruhu
-N(     3+IZ,  0    ,a/12  ,ZI);                  //N(     3+IZ,  0    ,b/12  ,ZI);
-N(     5+IZ,  b/8  ,0     ,ZI);
+N(     1+IZ,  0      ,0      ,ZI);                  // pociatok
+N(     2+IZ,  b/4    ,0      ,ZI);                  // stred polkruhu
+N(    20+IZ,  b/48   ,6*a/24 ,ZI);              //N(    20+IZ,  0    ,3*b/8 ,ZI);
+N(    24+IZ,  2*b/48 ,9/24*a ,ZI);          //N(    24+IZ,  0    ,b/2   ,ZI);
+N(    30+IZ,  b/8    ,11/24*a,ZI);                //N(    30+IZ,  b/8  ,5*b/8 ,ZI);
+N(    40+IZ,  b/4    ,a/2    ,ZI);                    //N(    40+IZ,  b/4  ,3*b/4 ,ZI);
+
+NINC(  3+IZ,  1+IZ, 20+IZ,25);
+NINC(  5+IZ,  1+IZ,  2+IZ,50);
+NINC(  8+IZ,  1+IZ, 20+IZ,50);
+NINC( 14+IZ,  1+IZ, 20+IZ,75);
+
 NINC(  4+IZ,  5+IZ,1+IZ,50);
 N(     6+IZ,  0,-NY[3+IZ],NZ[1+IZ]);             // tak ako 3 len zaporne y
-N(     8+IZ,  0    ,a/6   ,ZI);                  //N(     8+IZ,  0    ,b/6   ,ZI);
 NINC( 10+IZ,  2+IZ,8+IZ,50);
 NINC(  9+IZ,  10+IZ,3+IZ,50);
 N(    11+IZ,  0,-NY[8+IZ] ,ZI);                  // tak ako  8 len zaporne y
 N(    12+IZ,  NX[9+IZ],-NY[9+IZ],ZI);            // tak ako  9 len zaporne y
 N(    13+IZ,  NX[10+IZ],-NY[10+IZ],ZI);          // tak ako 10 len zaporne y
-N(    14+IZ,  0    ,a/4   ,ZI);                  //N(    14+IZ,  0    ,b/4   ,ZI);
 NINC( 15+IZ,  2+IZ,14+IZ,70);
 N(    17+IZ,  0,-NY[14+IZ],ZI);
 N(    18+IZ,  NX[15+IZ],-NY[15+IZ],ZI);          // tak ako 14 len zaporne y
-N(    20+IZ,  b/48    ,4*a/12 ,ZI);              //N(    20+IZ,  0    ,3*b/8 ,ZI);
 NINC( 21+IZ,  2+IZ,20+IZ,70);
-N(    22+IZ,  NX[20],-NY[20+IZ],ZI);                  // tak ako 20 len zaporne y
+N(    22+IZ,  NX[20+IZ],-NY[20+IZ],ZI);                  // tak ako 20 len zaporne y
 NINC( 23+IZ,  2+IZ,22+IZ,70);
-N(    24+IZ,  2*b/48    ,5/12*a   ,ZI);               //N(    24+IZ,  0    ,b/2   ,ZI);
 N(    25+IZ,  b/12 ,NY[20+IZ],ZI);               //?????
 NINC( 26+IZ,  2+IZ,24+IZ,50);
 NINC( 16+IZ,  26+IZ,10+IZ,50);
 N(    19+IZ,  NX[16+IZ],-NY[16+IZ],ZI);
-N(    27+IZ,  NX[24],-NY[24+IZ],ZI);
+N(    27+IZ,  NX[24+IZ],-NY[24+IZ],ZI);
 N(    28+IZ,  NX[25+IZ],-NY[25+IZ],ZI);
 N(    29+IZ,  NX[26+IZ],-NY[26+IZ],ZI);
-N(    30+IZ,  b/8  ,11/24*a ,ZI);                //N(    30+IZ,  b/8  ,5*b/8 ,ZI);
 NINC( 31+IZ,  2+IZ,30+IZ,80);
 N(    32+IZ,  b/6  ,NY[20+IZ],ZI);
-NINC( 33+IZ,  2+IZ,30+IZ,50);
+NINC( 33+IZ,  2+IZ,30+IZ,45);
 NINC( 34+IZ,  2+IZ,30+IZ,25);
 N(    35+IZ,  NX[30+IZ],-NY[30+IZ],ZI);
 N(    36+IZ,  NX[31+IZ],-NY[31+IZ],ZI);
 N(    37+IZ,  NX[32+IZ],-NY[32+IZ],ZI);
 N(    38+IZ,  NX[33+IZ],-NY[33+IZ],ZI);
 N(    39+IZ,  NX[34+IZ],-NY[34+IZ],ZI);
-N(    40+IZ,  b/4  ,a/2 ,ZI);                    //N(    40+IZ,  b/4  ,3*b/4 ,ZI);
 NINC( 41+IZ,  2+IZ,40+IZ,85);
 NINC( 42+IZ,  2+IZ,40+IZ,70);
 N(    43+IZ,  b/4,NY[20+IZ],ZI);
@@ -401,8 +587,8 @@ N(   146+IZ,NX[145+IZ],-NY[145+IZ],ZI);
 NINC(147+IZ,42+IZ,43+IZ,50);
 NINC(148+IZ,92+IZ,141+IZ,50);
 N(   149+IZ,NX[148+IZ],-NY[148+IZ],ZI);
-N(   150+IZ,((b/4)+(3*b*TANd(45))/8),NY[20+IZ],ZI);
-N(   151+IZ,NX[150+IZ],-NY[150+IZ],ZI);
+NINC(150+IZ,139+IZ,141+IZ,200);
+NINC(151+IZ,140+IZ,142+IZ,200);
 
 RR:=ABS(NY[147+IZ]-NY[2+IZ]);
 for II:=153 to 163 do
@@ -448,88 +634,47 @@ end;   //  S_PLATN01
 
 
 
-Procedure S_stavn03;
-var   IZ,II,IP,PosCis,JJ           : longint;
-      ZI,RR,XS,YS,ALF,PerZuz       : single;
+Procedure S_stavn03(stavec:longint);
+var   II,IP,PosCis,JJ                                   : longint;
+      ZI,RR,XS,YS,ALF,PerZuz                            : single;
+      z1,z2,z3,a11,a12,a21,a22,p1,p2,Akoef,Bkoef,Ckoef  : single;
+      G       :Apole;
+      P,X     :Xpole;
+
 begin
 // !!!!!!!!!!        UZLY STAVCA
+c:=ccc[stavec];
+
 IZ:=1200+CSS;           //  ! Spodna podstava stavca cisla uzlov
-ZI:=ZSUR-c/2;           //  ! Suradnica v smere osi z
+ZI:={ZSUR}-c/2;           //  ! Suradnica v smere osi z
                         //  ! Nacitanie uzlov stavca v jednej rovine z, parametre a,b,c,IZ,ZI
-{N(     1+IZ,  0,0,ZI);
-N(     2+IZ,  b/4,0,ZI);
-N(     3+IZ,  0,b/12,ZI);
-N(     5+IZ,  b/8,0,ZI);
-N(     4+IZ,  5+IZ,1+IZ,50);
-N(     6+IZ,  0,-Ny[3+IZ],Nz[1+IZ]);
-N(     8+IZ,  0,b/6,ZI);
-N(    10+IZ,  2+IZ,8+IZ,50);
-N(     9+IZ,  10+IZ,3+IZ,50);
-N(    11+IZ,  0,-Ny[8+IZ],ZI);
-N(    12+IZ,  Nx[9+IZ],-Ny[9+IZ],ZI);
-N(    13+IZ,  Nx[10+IZ],-Ny[10+IZ],ZI);
-N(    14+IZ,  0,b/4,ZI);
-N(    15+IZ,  2+IZ,14+IZ,70);
-N(    17+IZ,  0,-Ny[14+IZ],ZI);
-N(    18+IZ,  Nx[15+IZ],-Ny[15+IZ],ZI);
-N(    20+IZ,  0,3*b/8,ZI);
-N(    21+IZ,  2+IZ,20+IZ,70);
-N(    22+IZ,  0,-Ny[20+IZ],ZI);
-N(    23+IZ,  2+IZ,22+IZ,70);
-N(    24+IZ,  0,b/2,ZI);
-N(    25+IZ,  b/12,Ny[20+IZ],ZI);
-N(    26+IZ,  2+IZ,24+IZ,50);
-N(    16+IZ,  26+IZ,10+IZ,50);
-N(    19+IZ,  Nx[16+IZ],-Ny[16+IZ],ZI);
-N(    27+IZ,  0,-Ny[24+IZ],ZI);
-N(    28+IZ,  Nx[25+IZ],-Ny[25+IZ],ZI);
-N(    29+IZ,  Nx[26+IZ],-Ny[26+IZ],ZI);
-N(    30+IZ,  b/8,5*b/8,ZI);
-N(    31+IZ,  2+IZ,30+IZ,80);
-N(    32+IZ,  b/6,Ny[20+IZ],ZI);
-N(    33+IZ,  2+IZ,30+IZ,50);
-N(    34+IZ,  2+IZ,30+IZ,25);
-N(    35+IZ,  Nx[30+IZ],-Ny[30+IZ],ZI);
-N(    36+IZ,  Nx[31+IZ],-Ny[31+IZ],ZI);
-N(    37+IZ,  Nx[32+IZ],-Ny[32+IZ],ZI);
-N(    38+IZ,  Nx[33+IZ],-Ny[33+IZ],ZI);
-N(    39+IZ,  Nx[34+IZ],-Ny[34+IZ],ZI);
 
-N(    40+IZ,  b/4  ,a/2 ,ZI);         //N(    40+IZ,  b/4  ,3*b/4 ,ZI);
-N(    41+IZ,  2+IZ,40+IZ,85);
-N(    42+IZ,  2+IZ,40+IZ,70);
-N(    43+IZ,  b/4,Ny[20+IZ],ZI);
+N(     1+IZ,  0      ,0      ,ZI);                  // pociatok
+N(     2+IZ,  b/4    ,0      ,ZI);                  // stred polkruhu
+N(    20+IZ,  b/48   ,6*a/24 ,ZI);              //N(    20+IZ,  0    ,3*b/8 ,ZI);
+N(    24+IZ,  2*b/48 ,9/24*a ,ZI);          //N(    24+IZ,  0    ,b/2   ,ZI);
+N(    30+IZ,  b/8    ,11/24*a,ZI);                //N(    30+IZ,  b/8  ,5*b/8 ,ZI);
+N(    40+IZ,  b/4    ,a/2    ,ZI);                    //N(    40+IZ,  b/4  ,3*b/4 ,ZI);
 
-N(    45+IZ,  2+IZ,40+IZ,40);
-N(    46+IZ,  2+IZ,40+IZ,20);
-N(    47+IZ,  Nx[40+IZ],-Ny[40+IZ],ZI);
-N(    48+IZ,  Nx[41+IZ],-Ny[41+IZ],ZI);
-N(    49+IZ,  Nx[42+IZ],-Ny[42+IZ],ZI);
-N(    50+IZ,  Nx[43+IZ],-Ny[43+IZ],ZI);
-N(    52+IZ,  Nx[45+IZ],-Ny[45+IZ],ZI);
-N(    53+IZ,  Nx[46+IZ],-Ny[46+IZ],ZI);}
 
-N(     1+IZ,  0    ,0     ,ZI);                  // pociatok
-N(     2+IZ,  b/4  ,0     ,ZI);                  // stred polkruhu
-N(     3+IZ,  0    ,a/12  ,ZI);                  //N(     3+IZ,  0    ,b/12  ,ZI);
-N(     5+IZ,  b/8  ,0     ,ZI);
+NINC(  3+IZ,  1+IZ, 20+IZ,25);
+NINC(  5+IZ,  1+IZ,  2+IZ,50);
+NINC(  8+IZ,  1+IZ, 20+IZ,50);
+NINC( 14+IZ,  1+IZ, 20+IZ,75);
+
 NINC(  4+IZ,  5+IZ,1+IZ,50);
 N(     6+IZ,  0,-NY[3+IZ],NZ[1+IZ]);             // tak ako 3 len zaporne y
-N(     8+IZ,  0    ,a/6   ,ZI);                  //N(     8+IZ,  0    ,b/6   ,ZI);
 NINC( 10+IZ,  2+IZ,8+IZ,50);
 NINC(  9+IZ,  10+IZ,3+IZ,50);
 N(    11+IZ,  0,-NY[8+IZ] ,ZI);                  // tak ako  8 len zaporne y
 N(    12+IZ,  NX[9+IZ],-NY[9+IZ],ZI);            // tak ako  9 len zaporne y
 N(    13+IZ,  NX[10+IZ],-NY[10+IZ],ZI);          // tak ako 10 len zaporne y
-N(    14+IZ,  0    ,a/4   ,ZI);                  //N(    14+IZ,  0    ,b/4   ,ZI);
 NINC( 15+IZ,  2+IZ,14+IZ,70);
 N(    17+IZ,  0,-NY[14+IZ],ZI);
 N(    18+IZ,  NX[15+IZ],-NY[15+IZ],ZI);          // tak ako 14 len zaporne y
-N(    20+IZ,  b/48    ,4*a/12 ,ZI);              //N(    20+IZ,  0    ,3*b/8 ,ZI);
 NINC( 21+IZ,  2+IZ,20+IZ,70);
 N(    22+IZ,  NX[20+IZ],-NY[20+IZ],ZI);                  // tak ako 20 len zaporne y
 NINC( 23+IZ,  2+IZ,22+IZ,70);
-N(    24+IZ,  2*b/48    ,5/12*a   ,ZI);               //N(    24+IZ,  0    ,b/2   ,ZI);
 N(    25+IZ,  b/12 ,NY[20+IZ],ZI);               //?????
 NINC( 26+IZ,  2+IZ,24+IZ,50);
 NINC( 16+IZ,  26+IZ,10+IZ,50);
@@ -537,17 +682,15 @@ N(    19+IZ,  NX[16+IZ],-NY[16+IZ],ZI);
 N(    27+IZ,  NX[24+IZ],-NY[24+IZ],ZI);
 N(    28+IZ,  NX[25+IZ],-NY[25+IZ],ZI);
 N(    29+IZ,  NX[26+IZ],-NY[26+IZ],ZI);
-N(    30+IZ,  b/8  ,11/24*a ,ZI);                //N(    30+IZ,  b/8  ,5*b/8 ,ZI);
 NINC( 31+IZ,  2+IZ,30+IZ,80);
 N(    32+IZ,  b/6  ,NY[20+IZ],ZI);
-NINC( 33+IZ,  2+IZ,30+IZ,50);
+NINC( 33+IZ,  2+IZ,30+IZ,45);
 NINC( 34+IZ,  2+IZ,30+IZ,25);
 N(    35+IZ,  NX[30+IZ],-NY[30+IZ],ZI);
 N(    36+IZ,  NX[31+IZ],-NY[31+IZ],ZI);
 N(    37+IZ,  NX[32+IZ],-NY[32+IZ],ZI);
 N(    38+IZ,  NX[33+IZ],-NY[33+IZ],ZI);
 N(    39+IZ,  NX[34+IZ],-NY[34+IZ],ZI);
-N(    40+IZ,  b/4  ,a/2 ,ZI);                    //N(    40+IZ,  b/4  ,3*b/4 ,ZI);
 NINC( 41+IZ,  2+IZ,40+IZ,85);
 NINC( 42+IZ,  2+IZ,40+IZ,70);
 N(    43+IZ,  b/4,NY[20+IZ],ZI);
@@ -575,9 +718,9 @@ For II:=55 to 71 do
     XS:=(Nx[2+IZ]+3*b/4*SINd(ALF));  //XS:=(Nx[2+IZ]+RR*SINd(ALF));
     YS:=(RR*COSd(ALF));
     N(    55+IP+IZ,XS,YS,ZI);             // ! body na kruznici po obvode);
-    N( 90+IP+IZ,2+IZ,II+IZ,85);           // ! okraj cortikalnej casti);
-    N( 73+IP+IZ,90+IP+IZ,55+IP+IZ,50);    // ! polovica z cortikalnej casti);
-    N(107+IP+IZ,2+IZ,II+IZ,40);
+    NINC( 90+IP+IZ,2+IZ,II+IZ,85);           // ! okraj cortikalnej casti);
+    NINC( 73+IP+IZ,90+IP+IZ,55+IP+IZ,50);    // ! polovica z cortikalnej casti);
+    NINC(107+IP+IZ,2+IZ,II+IZ,40);
     end;
 
 RR:=(ABS(Ny[46+IZ]-Ny[2+IZ]));              // ! vnutorny okruh 1);
@@ -638,14 +781,112 @@ N(   182+IZ,Nx[181+IZ],-Ny[181+IZ],ZI);
 N(183+IZ,91+IZ,139+IZ,50);
 N(   184+IZ,Nx[183+IZ],-Ny[183+IZ],ZI);
 
-for jj:=2 to 9 do                                       //! generovanie uzlov vyssich rezov tela stavca a ich zuzenie
-  begin
-  POSCIS:=(JJ-1)*300;
-  ngeN(2,POSCIS ,IZ+1,IZ+184,1,0,0,(ZSUR+ZZ[JJ]-ZI));   //  selektovanie a zuzenie uzlov ku stredu stavca vo vyssich rezoch
-  PERZUZ:=2/(c*c)*(195-2*PERC)*ZZ[JJ]*ZZ[JJ]-5/c*ZZ[JJ]+PERC;
-  STAVSEL1(PERZUZ,IZ+POSCIS);                           // 1. parameter je percento zuzenia,. 2.parameter zakl. cislo
+
+  ZZ[ 1] :=-0.50 *c        ; // hladiny z suradnic stavca
+  ZZ[ 2] :=-0.45 *c        ; // hladiny z suradnic stavca
+  ZZ[ 3] :=-0.30 *c        ; // hladiny z suradnic stavca
+  ZZ[ 4] :=-0.15 *c        ; // hladiny z suradnic stavca
+  ZZ[ 5] :=+0    *c        ; // hladiny z suradnic stavca
+  ZZ[ 6] :=+0.15 *c        ; // hladiny z suradnic stavca
+  ZZ[ 7] :=+0.30 *c        ; // hladiny z suradnic stavca
+  ZZ[ 8] :=+0.45 *c        ; // hladiny z suradnic stavca
+  ZZ[ 9] :=+0.500*c        ; // hladiny z suradnic stavca
+
+{ ZZ[10]:=-0.5*c-dd/4                ; // hladiny z suradnic platnicky
+  ZZ[11]:=-0.5*c-dd/2                ; // hladiny z suradnic platnicky
+  ZZ[12]:=-0.5*c-3*dd/4              ; // hladiny z suradnic platnicky
+}
+
+  for jj:=2 to 9 do                                       //! generovanie uzlov vyssich rezov tela stavca a ich zuzenie
+    begin
+      POSCIS:=(JJ-1)*300;
+      ngeN(2,POSCIS ,IZ+1,IZ+184,1,0,0,({ZSUR+}ZZ[JJ]-ZI));   //  selektovanie a zuzenie uzlov ku stredu stavca vo vyssich rezoch
+    end;                                                  //! koniec generovania uzlov vyssich rezov
+
+
+  z1:=-0.45 *c;
+  z2:=    0 *c;
+  z3:= 0.45 *c;
+{
+  G[1,1]:=z1*z1;    G[1,2]:=z1;     G[1,3]:=1;      P[1]:=100;
+  G[2,1]:=z3*z3;    G[2,2]:=z3;     G[2,3]:=1;      P[2]:=100;
+  G[3,1]:=z2*z2;    G[3,2]:=z2;     G[3,3]:=1;      P[3]:=PERC;
+  RiesRovn(3, G, P, X);
+
+  Akoef:=x[1];
+  Bkoef:=x[2];
+  Ckoef:=x[3];
+ }
+
+  p1:=102-PERC;
+  p2:=102-PERC;
+  a11:=z1*z1;
+  a12:=z1;
+  a21:=z3*z3;
+  a22:=z3;
+  Akoef:=(p1*a22-p2*a12)/(a11*a22-a12*a21);
+  Bkoef:=(a11*p2-a21*p1)/(a11*a22-a12*a21);
+  Ckoef:=PERC;
+
+
+  for jj:=2 to 8 do                                       //! generovanie uzlov vyssich rezov tela stavca a ich zuzenie
+    begin
+    POSCIS:=(JJ-1)*300;
+    PERZUZ:=Akoef*sqr(ZZ[JJ]) +Bkoef*ZZ[JJ]+Ckoef;
+    STAVSEL1(PERZUZ,IZ+POSCIS);                           // 1. parameter je percento zuzenia,. 2.parameter zakl. cislo
   end;                                                  //! koniec generovania uzlov vyssich rezov
+
 end;    //  S_stavN03
+
+
+procedure RiesRovn(N:integer;  A:Apole;  P:Xpole;  var X:Xpole);
+var      k,i,j             :integer;
+         y,xpom            :real;
+ Procedure TestujDiag(N:integer;var  A:Apole;var  P:Xpole);
+ var i,j,k   :integer;
+ label zaciatok;
+ begin
+ zaciatok:
+ for i:=1 to N do
+   begin
+   if A[i,i]=0 then
+     begin
+     for j:=1 to N do if i<>j then
+       if A[j,i]<>0 then
+       begin
+       for k:=1 to N do
+         begin
+         A[i,k]:=A[i,k]+A[j,k];
+         end;{--k--}
+       P[i]:=P[i]+P[j];
+       goto zaciatok;
+       end;{--if--}
+     end; {--j--}
+   end;   {--i--}
+ end;
+
+ begin
+   TestujDiag(N,A,P);
+     for k:=1 to N-1 do
+     begin
+          for i:=k+1 to N do
+          begin
+          y:=A[i,k]/A[k,k];
+             for j:=k to N do
+                begin
+                A[i,j]:=A[i,j]-y*A[k,j];
+                end;
+          P[i]:=P[i]-y*P[k];
+          end;{--i--}
+     end;{-------k------}
+     for k:=N downto 1 do
+     begin
+          xpom:=0;
+             for i:=k+1 to N do   xpom:=xpom-X[i]*A[k,i];
+          X[k]:=(P[k]+xpom)/A[k,k];
+     end;{-------k------}
+end;{------------------RiesRovn------------------}
+
 
 Procedure ngeN(KolkoKrat,PosunCis ,iOD,iDO,Krok:longint; delX, delY, delZ:single);
 var ii,kk :longint;
@@ -659,11 +900,26 @@ begin
    end;   // kk
 end;    // ngeN
 
-Procedure Stavsel1(PERCEN:single; ZAKCIS:longint);
-var   ii,POCET,NU         :longint;
-      Pod                 :array[1..10000] of longint;
+Procedure Uzly0(var POCETPRVKOV:longint; ZAKCIS:longint);  // ZakladneBody
+var  i :longint;
 begin
-POD[  1]:=ZAKCIS+  24;
+POCETPRVKOV:=184 {299};
+for i := 1 to POCETPRVKOV do POD[  i]:=ZAKCIS+  i;
+end;
+
+{Procedure UzlyNic(var POCETPRVKOV:longint; ZAKCIS:longint);  // ZakladneBody
+var  i :longint;
+begin
+POCETPRVKOV:=1;
+for i := 1 to POCETPRVKOV do POD[  i]:=ZAKCIS+  63;
+end;
+}
+
+
+
+Procedure Uzly1(var POCETPRVKOV:longint; ZAKCIS:longint);
+begin
+POD[  1]:=ZAKCIS+  24;     //vybrane body z vonkajsej strany lini vrutov do pediklov a nad oblukom bodov 153 a6 163
 POD[  2]:=ZAKCIS+  27;
 POD[  3]:=ZAKCIS+  30;
 POD[  4]:=ZAKCIS+  31;
@@ -750,16 +1006,25 @@ POD[ 84]:=ZAKCIS+ 182;
 POD[ 85]:=ZAKCIS+ 183;
 POD[ 86]:=ZAKCIS+ 184;
 
-POCET:=86;
+POD[ 87]:=ZAKCIS+ 166;
+POD[ 88]:=ZAKCIS+ 176;
+
+POCETPRVKOV:=88;
+{POD[ 89]:=ZAKCIS+ 147;
+POD[ 90]:=ZAKCIS+ 177;}
+
+end;
+
+Procedure Stavsel1(PERCEN:single; ZAKCIS:longint);
+var   ii,POCET,NU         :longint;
+begin
+Uzly1(POCET,ZAKCIS);
   for II:=1 to POCET do    // uprava suradnic vyselektovanych uzlov (zuzenie stavca)
     begin
     NU:=POD[II];    //                   ! Cislo noveho uzla
     NINC(NU,ZAKCIS+2,NU,PERCEN);
     end;
 end;      //  Stavsel1
-
-
-
 
 
 Procedure UzlyStavca(PocetStavcov:longint);
@@ -774,7 +1039,7 @@ POSUNC:=6000 ;
 //    TYPY ELEMENTOV A MATERIALY
 
 CSS:=POSUNC;              //////CISLO STAVCA//////           STAVEC L5
-ZSUR:=0;                  // Z suradnica pociatku lok sur systemu stavca
+{ZSUR:=0;}                  // Z suradnica pociatku lok sur systemu stavca
 PERC:=87.5;               // maximalne zuzenie stavca    v %
 PERC1:=105;               // maximalne rozsirenie stavca v %
 a :=AAA[1];               // v m
@@ -782,67 +1047,32 @@ b :=BBB[1];               // v m
 c :=CCC[1];               // v m
 dd:=DDD[1];               // v m
 S_PLATN01;       // spodne uzly PRVEJ platnicky
-uhol:=ALY[1];
-OTOCY(    0, uhol,     0, 1,CSS);
 //  /gre,prvy       //////??????????????????????????????????
 for STAVEC:=1 to PocetStavcov do
  begin
   CSS:=POSUNC*STAVEC;       //////CISLO STAVCA//////
-  XSUR:=0;                  // X suradnica pociatku lok sur systemu stavca
-  YSUR:=0;                  // Y suradnica pociatku lok sur systemu stavca
-  ZSUR:=0;                  // Z suradnica pociatku lok sur systemu stavca
-  XROT:=0;                  // ROTACIA okolo osi X
-  YROT:=0;                  // ROTACIA okolo osi Y
-  ZROT:=0;                  // ROTACIA okolo osi Z
   PERC:=100*(1-ZUZ[stavec]/(3/4*BBB[stavec])) {87.5};               // maximalne zuzenie stavca    v %
-   { PERC1:=105;               // maximalne rozsirenie stavca v %}
   a :=AAA[stavec];          // v m
   b :=BBB[stavec];          // v m
   c :=CCC[stavec];          // v m
   dd:=DDD[stavec];          // v m      ASI SA VOBEC NEPOUZIVA v Delphi je pouzite pole pre suradnice z v projekcii YZ
-  // uhol:=ALY(stavec);
   IZ:=3600+CSS-POSUNC;      // CISLA UZLOV na HORNEJ HRANE PREDCHADZAJUCEHO STAVCA
-  ZI:=ZSUR-(c/2+dd);        // Suradnica v smere osi z
-//  nsel,s,node,,CSS-POSUNC+3600 ,CSS-POSUNC+3600  +195   // 195 preto, lebo este vyssie cisla su pre vybezky
-//  CM,UZLY1,node
-  ZZ[2] :=-0.45*c        ; // hladiny z suradnic stavca
-  ZZ[3] :=-0.30*c        ; // hladiny z suradnic stavca
-  ZZ[4] :=-0.125*c       ; // hladiny z suradnic stavca
-  ZZ[5] :=+0             ; // hladiny z suradnic stavca
-  ZZ[6] :=+0.125*c       ; // hladiny z suradnic stavca
-  ZZ[7] :=+0.30*c        ; // hladiny z suradnic stavca
-  ZZ[8] :=+0.45*c        ; // hladiny z suradnic stavca
-  ZZ[9] :=+0.500*c       ; // hladiny z suradnic stavca
-  ZZ[10]:=-0.5*c-dd/4    ; // hladiny z suradnic platnicky
-  ZZ[11]:=-0.5*c-dd/2    ; // hladiny z suradnic platnicky
-  ZZ[12]:=-0.5*c-3*dd/4  ; // hladiny z suradnic platnicky
+  ZI:={ZSUR}-(c/2{+dd});        // Suradnica v smere osi z
 
-  S_stavn03;       // generovanie UZLOV STAVCA zmeni sa hodnota IZ:=1200+CSS
+  S_stavn03(stavec);       // generovanie UZLOV STAVCA zmeni sa hodnota IZ:=1200+CSS
 
- { *IF,STAVEC,EQ,1,THEN
-    ZUZSTX,NZ(IZ+2401)-NZ(IZ+1),NZ(IZ+2463)-NZ(IZ+63)+c/4
-    !ZUZSTY,NZ(IZ+2402)-NZ(IZ+2),NZ(IZ+2440)-NZ(IZ+40)+c/4
-  *ENDIF
+  SKOSSTZ(CC2[STAVEC]);
+  ZUZSTZ( CCC[STAVEC],CC1[STAVEC]);
+  ZUZSTX( BBB[STAVEC],BB1[STAVEC]);
 
-  /input,S_VYBEZ,N1       ! ZADNE A BOCNE                                                      STAVCOVE VYBEZKY
-
-  *IF,STAVEC,EQ,1,THEN   !    BODY NA KOSTRCI PRE UCHYTENIE SVALOV
-    N,9900,NX(8920),NY(8920),NZ(8920)-(c+dd)
-    N,9901,NX(8899),NY(8899),NZ(8899)-(c+dd)
-  *ENDIF
- }
-
-  delxx:=XXX[stavec]{-XXX[1] };
-  delzz:=ZZZ[stavec]{-ZZZ[1]} ;
-  delyy:=YYY[stavec]{-YYY[1]} ;
   OTOCX( ALX[stavec],    0,    0, CSS,CSS+posunc*2);
   OTOCY(    0, ALY[stavec],    0, CSS,CSS+posunc*2);
   OTOCZ(    0,    0, ALZ[stavec], CSS,CSS+posunc*2);
-
+  delxx:=XXX[stavec];
+  delzz:=ZZZ[stavec];
+  delyy:=YYY[stavec];
   POSUN(  delXX, delyy  , delzz ,  CSS,   CSS+posunc);
-
  end;  // STAVEC
-
 end;   //
 
 
